@@ -6,14 +6,14 @@ int yywrap();
 int yylex();
 %}
 
-%token TERM NOOB NUMBR NUMBAR YARN HAI KTHXBYE I_HAZ_A ITZ R IF_U_SAY_SO HOW_DUZ_I YR AN OIC O_RLY YA_RLY MEBBE NO_WAI IM_IN_YR IM_OUTTA_YR
+%token TERM NOOB NUMBR NUMBAR YARN HAI KTHXBYE I_HAZ_A ITZ R IF_U_SAY_SO HOW_DUZ_I YR AN MKAY OIC O_RLY YA_RLY MEBBE NO_WAI IM_IN_YR IM_OUTTA_YR FOUND_YR GTFO
 
 
 start:
     beg TERM
     block
     end TERM
-    { $$ = $2 }
+    { $$ = $3 }
 
 beg:
     HAI
@@ -147,6 +147,7 @@ startloop:
     |
     IM_IN_YR var operation YR var WILE expression
     ;
+
 
 
 

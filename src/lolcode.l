@@ -51,7 +51,7 @@ VISIBLE					{
 GIMMEH					{
 	
 }
-[\\n,]+					{
+[\n,]+					{
 	return TERM;
 }
 //beg and end of kittez!
@@ -63,13 +63,15 @@ KTHXBYE                 {
 }
 //user literals
 [0-9]*\.[0-9]+          {
-    
+    yyval = ASTNodeSP(new ASTNumbar(atof(yytext)));
+    return NUMBAR
 }
 [0-9]                   {
-    
+	yyval = ASTNodeSP(new ASTNumbr(atoi(yytext)));
+    return NUMBR;
 }
 [a-zA-Z_][a-zA-Z0-9_]*  {
-    
+    yyval = ASTNodeSP(new ASTVar(yytext));
 }
 ".*"                    {
     
