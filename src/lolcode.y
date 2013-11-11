@@ -92,6 +92,15 @@ if:
     O_RLY TERM
     YA_RLY TERM
     block
+    endif
+    ;
+
+endif:
+    OIC
+    |
+    else OIC
+    |
+    elseif else OIC
     ;
 
 else:
@@ -127,7 +136,17 @@ expr:
 
 
 loop:
-    IM_IN_YR var 
+    startloop
+    block
+    IM_OUTTA_YR var
+
+startloop:
+    IM_IN_YR var operation YR var
+    |
+    IM_IN_YR var operation YR var TIL expression
+    |
+    IM_IN_YR var operation YR var WILE expression
+    ;
 
 
 
