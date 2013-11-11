@@ -1,0 +1,6 @@
+typedef std::list<std::pair<ASTExpressionSP, ASTStatementsSP> > clauses;
+
+where "else" clause is just an elseif clause where the condition (expression) is "True"
+
+
+
