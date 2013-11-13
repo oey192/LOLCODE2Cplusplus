@@ -6,7 +6,7 @@ int yywrap();
 int yylex();
 %}
 
-%token TERM NOOB NUMBR NUMBAR YARN HAI KTHXBYE I_HAZ_A ITZ R IF_U_SAY_SO HOW_DUZ_I YR AN MKAY OIC O_RLY YA_RLY MEBBE NO_WAI IM_IN_YR IM_OUTTA_YR FOUND_YR GTFO
+%token TERM NOOB NUMBR NUMBAR YARN HAI KTHXBYE I_HAZ_A ITZ R IF_U_SAY_SO HOW_DUZ_I YR AN MKAY OIC O_RLY YA_RLY MEBBE NO_WAI IM_IN_YR IM_OUTTA_YR FOUND_YR GTFO VAR
 
 
 start:
@@ -14,6 +14,7 @@ start:
     block
     end TERM
     { $$ = $3 }
+    ;
 
 beg:
     HAI
@@ -29,15 +30,16 @@ end:
 
 
 block:
-    statemente
+    statementt
     |
-    statemente block
+    statementt block
     ;
 
-statemente:
+statementt:
     statement TERM
     ;
 
+//switch ommitted
 statement:
     declare
     |
@@ -45,21 +47,21 @@ statement:
     |
     function
     |
-    if
+    ifmaster
     |
-    switch
+    loop
     |
     expression
     ;
 
 declare:
-    I_HAZ_A var
+    I_HAZ_A VAR
     |
-    I_HAZ_A var ITZ expression
+    I_HAZ_A VAR ITZ expression
     ;
 
 assign:
-    var R expression
+    VAR R expression
     ;
 
 function:
@@ -67,15 +69,15 @@ function:
     ;
 
 funcbegin:
-    HOW_DUZ_I var
+    HOW_DUZ_I VAR
     |
     funcbegin2
     ;
 
 funcbegin2:
-    funcbegin YR var
+    funcbegin YR VAR
     |
-    funcbegin2 AN YR var
+    funcbegin2 AN YR VAR
     ;
 
 
@@ -125,7 +127,7 @@ expression:
 expr:
     operator
     |
-    var
+    VAR
     |
     value
     |
@@ -138,16 +140,27 @@ expr:
 loop:
     startloop
     block
-    IM_OUTTA_YR var
+    IM_OUTTA_YR VAR
 
 startloop:
-    IM_IN_YR var operation YR var
+    IM_IN_YR VAR operation YR VAR
     |
-    IM_IN_YR var operation YR var TIL expression
+    IM_IN_YR VAR operation YR VAR TIL expression
     |
-    IM_IN_YR var operation YR var WILE expression
+    IM_IN_YR VAR operation YR VAR WILE expression
     ;
 
+//TODO: add operator stuff
+operator:
+    
 
+    ;
+
+//could also be any unary function (e.g. not) but I'm not bothering to implement that for now
+operation:
+    UPPIN
+    |
+    NERFIN
+    ;
 
 
