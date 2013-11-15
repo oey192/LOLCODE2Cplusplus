@@ -125,7 +125,11 @@ expression:
     ;
 
 expr:
-    operator
+    operator expression AN expression
+    |
+    inf_op expression AN inf_expr MKAY
+    |
+    NOT expression
     |
     VAR
     |
@@ -134,6 +138,12 @@ expr:
     AN
     |
     MKAY
+    ;
+
+inf_expr:
+    expression
+    |
+    inf_expr AN inf_expr
     ;
 
 
@@ -150,10 +160,37 @@ startloop:
     IM_IN_YR VAR operation YR VAR WILE expression
     ;
 
-//TODO: add operator stuff
-operator:
-    
 
+operator:
+    SUM_OF
+    |
+    DIFF_OF
+    |
+    PRODUKT_OF
+    |
+    QUOSHUNT_OF
+    |
+    MOD_OF
+    |
+    BIGGR_OF
+    |
+    SMALLR_OF
+    |
+    BOTH_OF
+    |
+    EITHER_OF
+    |
+    WON_OF
+    |
+    BOTH_SAEM
+    |
+    BOTH_DIFFRINT
+    ;
+
+inf_op:
+    ALL_OF
+    |
+    ANY_OF
     ;
 
 //could also be any unary function (e.g. not) but I'm not bothering to implement that for now
