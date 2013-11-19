@@ -6,8 +6,9 @@ int yywrap();
 int yylex();
 %}
 
-%token TERM NOOB NUMBR NUMBAR YARN HAI KTHXBYE I_HAZ_A ITZ R IF_U_SAY_SO HOW_DUZ_I YR AN MKAY OIC O_RLY YA_RLY MEBBE NO_WAI IM_IN_YR IM_OUTTA_YR FOUND_YR GTFO VAR
+%token TERM NOOB NUMBR NUMBAR TROOF YARN HAI KTHXBYE I_HAZ_A ITZ R IF_U_SAY_SO HOW_DUZ_I YR AN MKAY OIC O_RLY YA_RLY MEBBE NO_WAI IM_IN_YR IM_OUTTA_YR FOUND_YR GTFO VAR WON_OF EITHER_OF BOTH_OF SMALLR_OF BIGGR_OF WILE TIL UPPIN NERFIN MOD_OF QUOSHUNT_OF PRODUKT_OF DIFF_OF NOT SUM_OF ANY_OF ALL_OF BOTH_DIFFRINT BOTH_SAEM
 
+%%
 
 start:
     beg TERM
@@ -200,4 +201,32 @@ operation:
     NERFIN
     ;
 
+value:
+    NUMBAR
+    |
+    NUMBR
+    |
+    TROOF
+    |
+    YARN
+    ;
+
+%%
+
+
+void yyerror(const char *str)
+{
+        fprintf(stderr,"error: %s\n",str);
+}
+ 
+int yywrap()
+{
+        return 1;
+} 
+  
+int main(int argc, char *argv[])
+{
+        yyparse();
+        return 0;
+}
 

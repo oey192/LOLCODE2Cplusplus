@@ -70,6 +70,9 @@ KTHXBYE                 {
 	yyval = ASTNodeSP(new ASTNumbr(atoi(yytext)));
     return NUMBR;
 }
+WIN | FAIL              {
+    return TROOF
+}
 [a-zA-Z_][a-zA-Z0-9_]*  {
     yyval = ASTNodeSP(new ASTVar(yytext));
 }
