@@ -3,9 +3,9 @@ DEBUG = -g
 CXXFLAGS = -Wall -Iinclude -fPIC $(DEBUG)
 LDFLAGS = -lfl
 
-OBJS = tmp/lolcode.yy.c tmp/lolcode.tab.cpp bin/lolcode.tab.o bin/lolcode.yy.o
+OBJS = tmp/lolcode.yy.cpp tmp/lolcode.tab.cpp bin/lolcode.tab.o bin/lolcode.yy.o
 
-tmp/lolcode.yy.c: src/lolcode.l
+tmp/lolcode.yy.cpp: src/lolcode.l
 	flex -o $@ $^
 	#flex -o src/lolcode.yy.c src/lolcode.l
 
@@ -32,7 +32,7 @@ all : dirs bin/lolcode $(OUTPUT)
 dirs :
 	mkdir -p bin
 	mkdir -p tmp
-
+	
 clean:
 	/bin/rm -rf tmp/* bin/*
 
