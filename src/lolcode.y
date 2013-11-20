@@ -8,12 +8,17 @@ int yylex();
 
 %token TERM NOOB NUMBR NUMBAR TROOF YARN HAI KTHXBYE I_HAZ_A ITZ R IF_U_SAY_SO HOW_DUZ_I YR AN MKAY OIC O_RLY YA_RLY MEBBE NO_WAI IM_IN_YR IM_OUTTA_YR FOUND_YR GTFO VAR WON_OF EITHER_OF BOTH_OF SMALLR_OF BIGGR_OF WILE TIL UPPIN NERFIN MOD_OF QUOSHUNT_OF PRODUKT_OF DIFF_OF NOT SUM_OF ANY_OF ALL_OF BOTH_DIFFRINT BOTH_SAEM
 
+%left BIGGR_OF SMALLR_OF BOTH_OF EITHER_OF WON_OF BOTH_SAEM BOTH_DIFFRINT
+%left SUM_OF DIFF_OF
+%left PRODUKT_OF QUOSHUNT_OF MOD_OF
+%left NOT
+
 %%
 
 start:
     beg TERM
     block
-    end TERM
+    end
     { $$ = $3 }
     ;
 
@@ -33,7 +38,7 @@ end:
 block:
     statementt
     |
-    statementt block
+    block statementt
     ;
 
 statementt:
@@ -51,8 +56,6 @@ statement:
     ifmaster
     |
     loop
-    |
-    expression
     ;
 
 declare:
@@ -84,10 +87,10 @@ funcbegin2:
 
 ifmaster:
     if OIC
-    |
+    /*|
     if else OIC
     |
-    if elseif else OIC
+    if elseif else OIC*/
     ;
 
 if:
@@ -119,18 +122,22 @@ elseif:
     elseif
     ;
 
-expression:
+/*expression:
     expr
     |
-    expr expression
-    ;
+    expression expr
+    ;*/
+/*expression:
+    expr
+    ;*/
+expression: '$';
 
-expr:
-    operator expression AN expression
+/*expr:
+    operator expr AN expr
     |
-    inf_op expression AN inf_expr MKAY
+    inf_op expr AN inf_expr MKAY
     |
-    NOT expression
+    NOT expr
     |
     VAR
     |
@@ -142,11 +149,11 @@ expr:
     ;
 
 inf_expr:
-    expression
+    expr
     |
-    inf_expr AN inf_expr
+    inf_expr AN expr
     ;
-
+*/
 
 loop:
     startloop
