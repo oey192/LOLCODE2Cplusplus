@@ -1,6 +1,6 @@
 %{
 #include <string>
-#include "lolcode.h"
+//#include "lolcode.h"
 void yyerror(const char *str);
 int yywrap();
 int yylex();
@@ -118,8 +118,7 @@ elseif:
     MEBBE TERM
     block
     |
-    elseif
-    elseif
+    elseif elseif
     ;
 
 /*expression:
@@ -127,12 +126,12 @@ elseif:
     |
     expression expr
     ;*/
-/*expression:
+expression:
     expr
-    ;*/
+    ;
 expression: '$';
 
-/*expr:
+expr:
     operator expr AN expr
     |
     inf_op expr AN inf_expr MKAY
@@ -153,7 +152,7 @@ inf_expr:
     |
     inf_expr AN expr
     ;
-*/
+
 
 loop:
     startloop
