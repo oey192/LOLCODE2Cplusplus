@@ -5,17 +5,17 @@ LDFLAGS = -lfl
 
 OBJS = tmp/lolcode.yy.cpp tmp/lolcode.tab.cpp bin/lolcode.tab.o bin/lolcode.yy.o
 
-tmp/lolcode.yy.cpp: src/lolcode.l
+tmp/lolcode.yy.cpp: src/lolcode3.l
 	flex -o $@ $^
 	#flex -o src/lolcode.yy.c src/lolcode.l
 
+tmp/lolcode.tab.cpp: src/lolcode3.y
+	bison -d -o $@ $^
+	#bison -d -o tmp/lolcode.tab.cpp src/lolcode.y
+	
 bin/lolcode.yy.o: tmp/lolcode.yy.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $^
 	#$(CXX) -c -o $@ $<
-
-tmp/lolcode.tab.cpp: src/lolcode.y
-	bison -d -o $@ $^
-	#bison -d -o tmp/lolcode.tab.cpp src/lolcode.y
 
 bin/lolcode.tab.o: tmp/lolcode.tab.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $^
@@ -34,5 +34,5 @@ dirs :
 	mkdir -p tmp
 	
 clean:
-	/bin/rm -rf tmp/* bin/*
+	rm -rf tmp/* bin/*
 
