@@ -8,7 +8,8 @@
 
 %%
 BTW.+$                  { return COMMENT; }
-[0-9]+                  { yylval.num = atoi(yytext); return T_NUMBER; }
+[0-9]+                  { yylval.num = atoi(yytext);
+						  return T_NUMBER; }
 A                       { return A; }
 AND                     { return AND; }
 BIGR                    { return BIGR; }

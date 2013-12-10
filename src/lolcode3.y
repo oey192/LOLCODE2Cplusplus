@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-void yyerror(const char *str) { fprintf(stderr,"error: %s\n",str);} // Better error message
+void yyerror(const char *str) 
+{
+  fprintf(stderr,"error: %s\n",str);
+} // Better error message
 int yywrap() {return 1;}
 int yylex(void);
 
