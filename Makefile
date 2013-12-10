@@ -1,7 +1,12 @@
 CXX = g++
 DEBUG = -g
 CXXFLAGS = -Wall -Iinclude -fPIC $(DEBUG)
-LDFLAGS = -lfl
+LDFLAGS = 
+ifeq ($(shell uname),Darwin)
+	LDFLAGS += -ll
+else
+	LDFLAGS = -lfl
+endif
 #tmp/lolcode.yy.cpp tmp/lolcode.tab.cpp 
 OBJS = bin/lolcode.tab.o bin/lolcode.yy.o
 
