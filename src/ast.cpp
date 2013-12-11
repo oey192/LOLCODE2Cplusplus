@@ -13,133 +13,117 @@ std::ostream& operator<< (std::ostream&out, const ASTNode &node)
   return out;
 }
 
-ASTSymbol::ASTSymbol(const std::string &name_): name(name_)
-{}
+ASTSymbol::ASTSymbol(const std::string &name_):name(name_){}
 
-ASTSymbol::ASTSymbol(const std::string &name_, const ASTNumberSP &val_): name(name_), val(val_)
-{}
+ASTSymbol::ASTSymbol(const std::string &name_, const ASTNumberSP &val_):name(name_), val(val_){}
 
-ASTSymbol::ASTSymbol(const std::string &name_, const ASTStringSP &value_)
-  : name(name_), value(value_)
-{}
+ASTSymbol::ASTSymbol(const std::string &name_, const ASTStringSP &value_):name(name_), value(value_){}
 
 double ASTSymbol::eval() const
 {
-  return (val)? val->eval() : value->eval();
+	return (val)? val->eval() : value->eval();
 }
 
 void ASTSymbol::print(std::ostream &out) const
 {
-  out << name;
+	out << name;
 }
 
 void ASTSymbol::translate(std::ostream &out)
 {
-  if (value) {
-    out << "string " << name << " = \"" << value->str() << "\";" << endl;
-  } else {
-    out << "double " << name << " = " << val->eval() << ";" << endl;
-  }
+	if (value) {
+		out << "string " << name << " = \"" << value->str() << "\";" << endl;
+	} else {
+		out << "double " << name << " = " << val->eval() << ";" << endl;
+	}
 }
 
-ASTString::ASTString(const std::string &value_)
-  : value(value_)
-{}
+ASTString::ASTString(const std::string &value_):value(value_){}
 
 double ASTString::eval() const
 {
-  double ans = 0;
-  for (int i = 0; i < value.length(); i++) {
-    ans += (char)value[i];
-  }
-  return ans;
+	double ans = 0;
+	for (unsigned int i = 0; i < value.length(); i++) ans += (char)value[i];
+	return ans;
 }
 
 string ASTString::str() const
 {
-  return value;
+	return value;
 }
 
 void ASTString::print(std::ostream &out) const
 {
-  out << "\"" << value << "\"";
+	out << "\"" << value << "\"";
 }
 
 void ASTString::translate(std::ostream &out)
 {
-  out << " \"" << value << "\" ";
+	out << " \"" << value << "\" ";
 }
 
-ASTNumber::ASTNumber(double value_) 
-  : value(value_) 
-{}
+ASTNumber::ASTNumber(double value_):value(value_){}
 
 double ASTNumber::eval() const
 {
-  return value;
+	return value;
 }
 
 void ASTNumber::print(std::ostream &out) const 
 { 
-  out << value;
+	out << value;
 }
 
 void ASTNumber::translate(std::ostream &out)
 {
-  out << " " << value << " ";
+	out << " " << value << " ";
 }
 
-ASTSum::ASTSum(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_)
-  : lhs(lhs_), rhs(rhs_)
-{}
+ASTSum::ASTSum(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_):lhs(lhs_), rhs(rhs_){}
 
 double ASTSum::eval() const
 {
-  return lhs->eval() + rhs->eval();
+	return lhs->eval() + rhs->eval();
 }
 
 void ASTSum::print(std::ostream &out) const
 {
-  out << "(" << *lhs << "+" << *rhs << ")";
+	out << "(" << *lhs << "+" << *rhs << ")";
 }
 
 void ASTSum::translate(std::ostream &out)
 {
-  lhs->translate(out);
-  out << " + ";
-  rhs->translate(out);
-  out << endl;
+	lhs->translate(out);
+	out << " + ";
+	rhs->translate(out);
+	out << endl;
 }
 
-ASTSub::ASTSub(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_)
-  : lhs(lhs_), rhs(rhs_)
-{}
+ASTSub::ASTSub(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_):lhs(lhs_), rhs(rhs_){}
 
 double ASTSub::eval() const
 {
-  return lhs->eval() - rhs->eval();
+	return lhs->eval() - rhs->eval();
 }
 
 void ASTSub::print(std::ostream &out) const
 {
-  out << "(" << *lhs << "+" << *rhs << ")";
+	out << "(" << *lhs << "+" << *rhs << ")";
 }
 
 void ASTSub::translate(std::ostream &out)
 {
-  lhs->translate(out);
-  out << " - ";
-  rhs->translate(out);
-  out << endl;
+	lhs->translate(out);
+	out << " - ";
+	rhs->translate(out);
+	out << endl;
 }
 
-ASTProduct::ASTProduct(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_)
-  : lhs(lhs_), rhs(rhs_)
-{}
+ASTProduct::ASTProduct(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_): lhs(lhs_), rhs(rhs_){}
 
 double ASTProduct::eval() const
 {
-  return lhs->eval() * rhs->eval();
+	return lhs->eval() * rhs->eval();
 }
 
 void ASTProduct::print(std::ostream &out) const
@@ -149,51 +133,47 @@ void ASTProduct::print(std::ostream &out) const
 
 void ASTProduct::translate(std::ostream &out)
 {
-  lhs->translate(out);
-  out << " * ";
-  rhs->translate(out);
-  out << endl;
+	lhs->translate(out);
+	out << " * ";
+	rhs->translate(out);
+	out << endl;
 }
 
-ASTDiv::ASTDiv(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_)
-  : lhs(lhs_), rhs(rhs_)
-{}
+ASTDiv::ASTDiv(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_): lhs(lhs_), rhs(rhs_){}
 
 double ASTDiv::eval() const
 {
-  return lhs->eval() / rhs->eval();
+	return lhs->eval() / rhs->eval();
 }
 
 void ASTDiv::print(std::ostream &out) const
 {
-  out << "(" << *lhs << "*" << *rhs << ")";
+	out << "(" << *lhs << "*" << *rhs << ")";
 }
 
 void ASTDiv::translate(std::ostream &out)
 {
-  lhs->translate(out);
-  out << " / ";
-  rhs->translate(out);
-  out << endl;
+	lhs->translate(out);
+	out << " / ";
+	rhs->translate(out);
+	out << endl;
 }
 
-ASTExpression::ASTExpression(const ASTNodeSP &expr_)
-  : expr(expr_)
-{}
+ASTExpression::ASTExpression(const ASTNodeSP &expr_): expr(expr_){}
 
 double ASTExpression::eval() const
 {
-  return expr->eval();
+	return expr->eval();
 }
 
 void ASTExpression::print(std::ostream &out) const
 {
-  expr->print(out);
+	expr->print(out);
 }
 
 void ASTExpression::translate(std::ostream &out)
 {
-  expr->translate(out);
+	expr->translate(out);
 }
 
 ASTStatements::ASTStatements()
@@ -201,33 +181,30 @@ ASTStatements::ASTStatements()
 
 double ASTStatements::eval() const
 {
-  double ans = 0;
-  for (Statements::const_iterator i = statements.begin();
-    i != statements.end();
-    ++i) {
-    ans += (*i)->eval();
-  }
-  return ans;
+	double ans = 0;
+	for (Statements::const_iterator i = statements.begin();
+		i != statements.end();
+		++i) {
+		ans += (*i)->eval();
+	}
+	return ans;
 }
 
 void ASTStatements::print(std::ostream &out) const
 {
-  for (Statements::const_iterator i = statements.begin();
-       i != statements.end();
-       ++i) {
-    (*i)->print(out); out << std::endl;
-  }
+	for (Statements::const_iterator i = statements.begin();
+		 i != statements.end(); ++i){
+		(*i)->print(out); out << std::endl;
+	}
 }
 
 void ASTStatements::translate(std::ostream &out)
 {
-  for (Statements::const_iterator i = statements.begin();
-       i != statements.end();
-       ++i) {
-
-    (*i)->translate(out);
-    out << endl;
-  }
+	for (Statements::const_iterator i = statements.begin();
+		 i != statements.end(); ++i) {
+		(*i)->translate(out);
+		out << endl;
+	}
 }
 
 ASTIn::ASTIn(const ASTSymbolSP &var_)
