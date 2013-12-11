@@ -1,5 +1,4 @@
 #include "ast.h"
-
 #include <iostream>
 #include <iomanip>
 #include <typeinfo>
@@ -14,12 +13,10 @@ std::ostream& operator<< (std::ostream&out, const ASTNode &node)
   return out;
 }
 
-ASTSymbol::ASTSymbol(const std::string &name_)
-  : name(name_)
+ASTSymbol::ASTSymbol(const std::string &name_): name(name_)
 {}
 
-ASTSymbol::ASTSymbol(const std::string &name_, const ASTNumberSP &val_)
-  : name(name_), val(val_)
+ASTSymbol::ASTSymbol(const std::string &name_, const ASTNumberSP &val_): name(name_), val(val_)
 {}
 
 ASTSymbol::ASTSymbol(const std::string &name_, const ASTStringSP &value_)
