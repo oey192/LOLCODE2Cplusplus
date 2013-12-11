@@ -55,6 +55,7 @@ YARLY                   { return YARLY; }
 YR                      { return YR; }
 \?                      { return P_QMARK; }
 \!                      { return P_EXCL; }
+\"(\\.|[^"])*\"			{ yylval.str = strdup(yytext); return T_STRING; }
 [A-Za-z]+               { yylval.str = strdup(yytext); return T_WORD; }
 [.\n]                   { return NEWLINE; }
 [\t ]+                  { /* Ignore whitespace */; }
