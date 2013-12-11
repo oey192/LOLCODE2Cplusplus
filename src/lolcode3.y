@@ -2,7 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ast.h"
+#include "translator.h"
 
+#define YYSTYPE ASTNodeSP
+
+ASTNodeSP program;
 void yyerror(const char *str) 
 {
   fprintf(stderr,"error: %s\n",str);
@@ -33,7 +38,7 @@ int yylex(void);
 %start program
 
 %%
-program : prog_start stmts prog_end { printf("Valid program!\n"); }
+program : prog_start stmts prog_end { program = $2; }
 ;
 
 array : array_index array
@@ -158,9 +163,9 @@ stmt : include               { printf("Inclusion (%s)", $1); }
      | COMMENT               { printf("/* COMMENT */"); }
 ;
 
-stmts : stmt end_stmt
-      | stmts stmt end_stmt
-      | /* no statements at all */
+stmts : stmt end_stmt               { (dynamic_cast<ASTStatements&>(*$$)).statements.push_back($1); }
+      | stmts stmt end_stmt         { $$ = $1; (dynamic_cast<ASTStatements&>(*$$)).statements.push_back($2); }
+      | /* no statements at all */ { $$ = ASTNodeSP(new ASTStatements()); }
 ;
 
 then : end_stmt
@@ -173,5 +178,9 @@ then : end_stmt
 int main(int argc, char **argv)
 {
   yyparse();
+  if (program) {
+    TranslatorSP cpp = CreateCPPTranslator();
+    cpp->translate("a.cpp", program);
+  }
   return 0;
 } 
