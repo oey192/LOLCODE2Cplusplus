@@ -9,6 +9,6 @@ class Translator
   virtual void translate(const std::string &file, ASTNodeSP program)=0;
   ~Translator();
 };
-typedef std::tr1::shared_ptr < Translator > TranslatorSP;
+typedef std::shared_ptr < Translator > TranslatorSP;
 
-TranslatorSP CreateJasminTranslator();
+TranslatorSP CreateCPPTranslator();

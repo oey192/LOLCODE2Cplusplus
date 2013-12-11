@@ -1,6 +1,6 @@
 CXX = g++
 DEBUG = -g
-CXXFLAGS = -Wall -Iinclude -fPIC $(DEBUG)
+CXXFLAGS = -std=c++0x -Wall -Iinclude -fPIC $(DEBUG)
 LDFLAGS = 
 ifeq ($(shell uname),Darwin)
 	LDFLAGS += -ll
@@ -8,7 +8,7 @@ else
 	LDFLAGS = -lfl
 endif
 #tmp/lolcode.yy.cpp tmp/lolcode.tab.cpp 
-OBJS = bin/lolcode.tab.o bin/lolcode.yy.o
+OBJS = bin/lolcode.tab.o bin/lolcode.yy.o bin/ast.o bin/translator.o
 
 all : dirs bin/lolcode $(OUTPUT)
 
@@ -26,9 +26,15 @@ bin/lolcode.yy.o: tmp/lolcode.yy.cpp
 
 bin/lolcode.tab.o: tmp/lolcode.tab.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $^
-	#$(CXX) -c -o $@ $<	
+	#$(CXX) -c -o $@ $<
 
-bin/lolcode : $(OBJS)
+bin/translator.o: src/translator.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
+
+bin/ast.o: src/ast.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $^
+
+bin/lolcode: $(OBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJS) $(LDFLAGS)
 
 #lolcode: bin/lolcode.tab.o bin/lolcode.tab.o

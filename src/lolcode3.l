@@ -2,13 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ast.h"
+#define YYSTYPE ASTNodeSP
 #include "lolcode.tab.hpp"
 %}
 
 
 %%
 BTW.+$                  { return COMMENT; }
-[0-9]+                  { yylval.num = atoi(yytext);
+[0-9]+                  { yylval = ASTNodeSP(new ASTNumber(atof(yytext)));
 						  return T_NUMBER; }
 A                       { return A; }
 AND                     { return AND; }
@@ -55,8 +57,8 @@ YARLY                   { return YARLY; }
 YR                      { return YR; }
 \?                      { return P_QMARK; }
 \!                      { return P_EXCL; }
-\"(\\.|[^"])*\"			{ yylval.str = strdup(yytext); return T_STRING; }
-[A-Za-z]+               { yylval.str = strdup(yytext); return T_WORD; }
+\"(\\.|[^"])*\"			{ yylval = ASTNodeSP(new ASTString(yytext)); return T_STRING; }
+[A-Za-z]+               { yylval = ASTNodeSP(new ASTSymbol(yytext)); return T_WORD; }
 [.\n]                   { return NEWLINE; }
 [\t ]+                  { /* Ignore whitespace */; }
 %%

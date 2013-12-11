@@ -18,14 +18,15 @@ class CPPTranslator : public Translator
   void header()
   {
     (*out) << "#include <iostream>" << endl;
+    (*out) << "#include <string>" << endl;
     (*out) << "using namespace std;" << endl;
     (*out) << endl;
-    (*out) << "int main(int argc, char *argv[]) {"
+    (*out) << "int main(int argc, char *argv[]) {" << endl;
   }
 
   void footer()
   {
-    (*out) << "    return 0;" << endl;
+    (*out) << endl << "    return 0;" << endl;
     (*out) << "}" << endl;
   }
 

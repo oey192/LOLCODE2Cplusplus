@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <typeinfo>
+#include <iostream>
 #include "ast.h"
 #include "translator.h"
 
 #define YYSTYPE ASTNodeSP
 
-ASTNodeSP program;
+ASTNodeSP prog;
 void yyerror(const char *str) 
 {
   fprintf(stderr,"error: %s\n",str);
@@ -17,13 +19,13 @@ int yylex(void);
 
 %}
 
-%union {
+/*%union {
   int   num;
   char *str;
-}
+}*/
 
-%token <num> T_NUMBER 
-%token <str> T_WORD T_STRING
+%token T_NUMBER 
+%token T_WORD T_STRING
 %token P_EXCL NEWLINE
 %token A AND BIGR BYES CAN COMMENT DIAF GIMMEH GTFO HAI HAS 
 %token I IM IN ITZ IZ KTHX KTHXBYE LIEK LETTAR LINE LOL MAH 
@@ -31,14 +33,14 @@ int yylex(void);
 %token SMALR STDIN THAN TIEMZ TIEMZD UP UPZ VISIBLE 
 %token WORD XOR YARLY YR P_QMARK
 
-%type <str> include
+/*%type <str> include*/
 
 %expect 102
 
 %start program
 
 %%
-program : prog_start stmts prog_end { program = $2; }
+program : prog_start stmts prog_end { prog = $2; }
 ;
 
 array : array_index array
@@ -48,7 +50,26 @@ array : array_index array
 array_index : T_NUMBER IN MAH
 ;
 
-assignment : LOL l_value R r_value  //     { /* printf("Assigning: %s = %s", $2, $4); */ }
+assignment : LOL l_value R r_value  { 
+  if (typeid(*$4) == typeid(ASTNumber)) {
+    std::cout << "number" << std::endl;
+    (dynamic_cast<ASTSymbol&>(*$2)).val = ASTNumberSP(&dynamic_cast<ASTNumber&>(*$4));
+  } else if (typeid(*$4) == typeid(ASTString)) {
+    std::cout << "string" << std::endl;
+    (dynamic_cast<ASTSymbol&>(*$2)).value = ASTStringSP(&dynamic_cast<ASTString&>(*$4));
+  } else {
+    std::cout << "4: nooooooooo" << std::endl;
+    /*std::cout << typeid($4) << std::endl;
+    std::cout << " num: " << std::endl;
+    std::cout << typeid(ASTNumberSP) << std::endl;
+    std::cout << " str: " << std::endl;
+    std::cout << typeid(ASTStringSP) << std::endl;
+    std::cout <<  " n: " << std::endl;
+    std::cout <<  typeid(ASTNumber) << std::endl; 
+    std::cout << " s: " << std:: endl;
+    std::cout << typeid(ASTString) << std::endl;*/
+  }
+}
            | self_assignment
 ;
 
@@ -68,7 +89,7 @@ conditional : IZ condexpr then stmts KTHX
             | IZ condexpr then stmts elsethen stmts KTHX
 ;
 
-declaration : I HAS A T_WORD initializer
+declaration : I HAS A T_WORD initializer { $$ = $4;/* (dynamic_cast<ASTSymbol&>(*$$)).value = $5*/}
 ;
 
 elsethen : NOWAI end_stmt
@@ -91,24 +112,24 @@ exit_message : /* nothing */
              | T_WORD
 ;
 
-expr : T_NUMBER          { printf("[NUM:%d]", $1); }
-     | T_WORD            { printf("[VAR:%s]", $1); }
-     | T_STRING          { printf("[STR:%s]", $1); }
-     | expr UP expr      { printf("[+]"); }
-     | expr NERF expr    { printf("[-]"); }
-     | expr TIEMZ expr   { printf("[*]"); }
-     | expr OVAR expr    { printf("[/]"); }
+expr : T_NUMBER          { $$ = $1; /*$$ = ASTNodeSP(new ASTNumber($1)); ? */ }
+     | T_WORD            { $$ = $1; }
+     | T_STRING          { $$ = $1; }
+     | expr UP expr      { $$ = ASTNodeSP(new ASTSum($1, $3)); }
+     | expr NERF expr    { $$ = ASTNodeSP(new ASTSub($1, $3)); }
+     | expr TIEMZ expr   { $$ = ASTNodeSP(new ASTProduct($1, $3)); }
+     | expr OVAR expr    { $$ = ASTNodeSP(new ASTDiv($1, $3)); }
 ;
 
-include : CAN HAS T_WORD P_QMARK   { $$ = $3; }
-        | CAN HAS T_STRING P_QMARK { $$ = $3; }
+include : CAN HAS T_WORD P_QMARK   { $$ = ASTNodeSP($3); }
+        | CAN HAS T_STRING P_QMARK { $$ = ASTNodeSP($3); }
 
 increment_expr : /* empty (defaults to 1) */
                | expr
 ;
 
-initializer: ITZ r_value
-           | /* empty */
+initializer: ITZ r_value { $$ = $2; }
+           | /* empty */ { $$ = ASTNodeSP(new ASTString("")); }
 ;
 
 input_type : /* empty */
@@ -122,7 +143,7 @@ input_from : /* empty */
            | OUTTA STDIN
 ;
 
-input : GIMMEH input_type T_WORD input_from
+input : GIMMEH input_type T_WORD input_from { $$ = ASTNodeSP(new ASTIn(ASTSymbolSP(&dynamic_cast<ASTSymbol&>(*$3)))); }
 ;
 
 l_value : array
@@ -131,7 +152,7 @@ l_value : array
 loop : IM IN YR T_WORD end_stmt stmts KTHX
 ;
 
-output : VISIBLE expr
+output : VISIBLE expr { $$ = ASTNodeSP(new ASTOut(ASTExpressionSP(new ASTExpression($2)))); }
 ;
 
 prog_start : HAI end_stmt
@@ -150,7 +171,7 @@ self_assignment : UPZ T_WORD P_EXCL P_EXCL increment_expr
                 | OVARZ T_WORD P_EXCL P_EXCL increment_expr
 ;
 
-stmt : include               { printf("Inclusion (%s)", $1); }
+stmt : include               { /*printf("Inclusion (%s)", $1);*/ }
      | declaration           { printf("Declaration"); }
      | loop                  { printf("Loop"); }
      | conditional           { printf("Conditional"); }
@@ -163,9 +184,9 @@ stmt : include               { printf("Inclusion (%s)", $1); }
      | COMMENT               { printf("/* COMMENT */"); }
 ;
 
-stmts : stmt end_stmt               { (dynamic_cast<ASTStatements&>(*$$)).statements.push_back($1); }
-      | stmts stmt end_stmt         { $$ = $1; (dynamic_cast<ASTStatements&>(*$$)).statements.push_back($2); }
-      | /* no statements at all */ { $$ = ASTNodeSP(new ASTStatements()); }
+stmts : /* no statements at all */  { printf("about to die1\n"); $$ = ASTNodeSP(new ASTStatements()); }
+      | stmt end_stmt               { /*printf("about to if\n"); std::cout << *$$ << " " << *$1 << std::endl; if (!$$) {printf("in if\n"); $$ = ASTNodeSP(new ASTStatements()); } else { printf("Confused\n");} (dynamic_cast<ASTStatements&>(*$$)).statements.push_back($1);*/ }
+      | stmts stmt end_stmt         { $$ = $1; printf("about to die3\n"); (dynamic_cast<ASTStatements&>(*$$)).statements.push_back($2); }
 ;
 
 then : end_stmt
@@ -178,9 +199,9 @@ then : end_stmt
 int main(int argc, char **argv)
 {
   yyparse();
-  if (program) {
+  if (prog) {
     TranslatorSP cpp = CreateCPPTranslator();
-    cpp->translate("a.cpp", program);
+    cpp->translate("tmp/a.cpp", prog);
   }
   return 0;
 } 
