@@ -30,6 +30,7 @@ int yylex(void);
 %token NERF NERFZ NOT NOWAI OR OUTTA OVAR OVARZ R
 %token SMALR STDIN THAN TIEMZ TIEMZD UP UPZ VISIBLE
 %token WORD XOR YARLY YR P_QMARK
+
 %start program
 
 %%
@@ -45,10 +46,10 @@ prog_end   : KTHXBYE
 ;
 
 array : array_index array
-      | T_WORD
+      | TOKEN_WORD
 ;
 
-array_index : T_NUMBER IN MAH
+array_index : TOKEN_NUMBER IN MAH
 ;
 
 assignment : LOL l_value R r_value  { 
@@ -90,7 +91,7 @@ conditional : IZ condexpr then stmts KTHX
             | IZ condexpr then stmts elsethen stmts KTHX
 ;
 
-declaration : I HAS A T_WORD initializer { $$ = $4;/* (dynamic_cast<ASTSymbol&>(*$$)).value = $5*/}
+declaration : I HAS A TOKEN_WORD initializer { $$ = $4;/* (dynamic_cast<ASTSymbol&>(*$$)).value = $5*/}
 ;
 
 elsethen : NOWAI end_stmt
@@ -104,26 +105,26 @@ exit : DIAF exit_status exit_message
 ;
 
 exit_status : /* nothing */
-            | T_NUMBER
-            | T_WORD
+            | TOKEN_NUMBER
+            | TOKEN_WORD
 ;
 
 exit_message : /* nothing */
-             | T_STRING
-             | T_WORD
+             | TOKEN_STRING
+             | TOKEN_WORD
 ;
 
-expr : T_NUMBER          { $$ = $1; /*$$ = ASTNodeSP(new ASTNumber($1)); ? */ }
-     | T_WORD            { $$ = $1; }
-     | T_STRING          { $$ = $1; }
+expr : TOKEN_NUMBER          { $$ = $1; /*$$ = ASTNodeSP(new ASTNumber($1)); ? */ }
+     | TOKEN_WORD            { $$ = $1; }
+     | TOKEN_STRING          { $$ = $1; }
      | expr UP expr      { $$ = ASTNodeSP(new ASTSum($1, $3)); }
      | expr NERF expr    { $$ = ASTNodeSP(new ASTSub($1, $3)); }
      | expr TIEMZ expr   { $$ = ASTNodeSP(new ASTProduct($1, $3)); }
      | expr OVAR expr    { $$ = ASTNodeSP(new ASTDiv($1, $3)); }
 ;
 
-include : CAN HAS T_WORD P_QMARK   { $$ = ASTNodeSP($3); }
-        | CAN HAS T_STRING P_QMARK { $$ = ASTNodeSP($3); }
+include : CAN HAS TOKEN_WORD P_QMARK   { $$ = ASTNodeSP($3); }
+        | CAN HAS TOKEN_STRING P_QMARK { $$ = ASTNodeSP($3); }
 
 increment_expr : /* empty (defaults to 1) */
                | expr
@@ -140,17 +141,17 @@ input_type : /* empty */
 ;
 
 input_from : /* empty */
-           | OUTTA T_WORD
+           | OUTTA TOKEN_WORD
            | OUTTA STDIN
 ;
 
-input : GIMMEH input_type T_WORD input_from { $$ = ASTNodeSP(new ASTIn(ASTSymbolSP(&dynamic_cast<ASTSymbol&>(*$3)))); }
+input : GIMMEH input_type TOKEN_WORD input_from { $$ = ASTNodeSP(new ASTIn(ASTSymbolSP(&dynamic_cast<ASTSymbol&>(*$3)))); }
 ;
 
 l_value : array
 ;
 
-loop : IM IN YR T_WORD end_stmt stmts KTHX
+loop : IM IN YR TOKEN_WORD end_stmt stmts KTHX
 ;
 
 output : VISIBLE expr { $$ = ASTNodeSP(new ASTOut(ASTExpressionSP(new ASTExpression($2)))); }
@@ -159,10 +160,10 @@ output : VISIBLE expr { $$ = ASTNodeSP(new ASTOut(ASTExpressionSP(new ASTExpress
 r_value : expr
 ;
 
-self_assignment : UPZ T_WORD P_EXCL P_EXCL increment_expr
-                | NERFZ T_WORD P_EXCL P_EXCL increment_expr
-                | TIEMZD T_WORD P_EXCL P_EXCL increment_expr
-                | OVARZ T_WORD P_EXCL P_EXCL increment_expr
+self_assignment : UPZ TOKEN_WORD P_EXCL P_EXCL increment_expr
+                | NERFZ TOKEN_WORD P_EXCL P_EXCL increment_expr
+                | TIEMZD TOKEN_WORD P_EXCL P_EXCL increment_expr
+                | OVARZ TOKEN_WORD P_EXCL P_EXCL increment_expr
 ;
 
 stmt : include               { /*printf("Inclusion (%s)", $1);*/ }

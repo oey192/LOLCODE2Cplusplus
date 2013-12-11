@@ -12,11 +12,11 @@ OBJS = bin/lolcode.tab.o bin/lolcode.yy.o bin/ast.o bin/translator.o
 
 all : dirs bin/lolcode $(OUTPUT)
 
-tmp/lolcode.yy.cpp: src/lolcode3.l
+tmp/lolcode.yy.cpp: src/lolcode4.l
 	flex -o $@ $^
 	#flex -o src/lolcode.yy.c src/lolcode.l
 	
-tmp/lolcode.tab.cpp: src/lolcode3.y
+tmp/lolcode.tab.cpp: src/lolcode4.y
 	bison -d -o $@ $^
 	#bison -d -o tmp/lolcode.tab.cpp src/lolcode.y
 
