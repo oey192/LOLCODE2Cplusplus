@@ -8,7 +8,11 @@
 %}
 
 
+NUMBER      [0-9]+
+WS          [ \r\n\t]*
+
 %%
+{NUMBER}                { sscanf(yytext, "%d", &yylval->value); return TOKEN_NUMBER; }
 BTW.+$                  { return COMMENT; }
 [0-9]+                  { yylval = ASTNodeSP(new ASTNumber(atof(yytext)));
 						  return T_NUMBER; }
@@ -57,8 +61,8 @@ YARLY                   { return YARLY; }
 YR                      { return YR; }
 \?                      { return P_QMARK; }
 \!                      { return P_EXCL; }
-\"(\\.|[^"])*\"			{ yylval = ASTNodeSP(new ASTString(yytext)); return T_STRING; }
+\"(\\.|[^"])*\"	    { yylval = ASTNodeSP(new ASTString(yytext)); return T_STRING; }
 [A-Za-z]+               { yylval = ASTNodeSP(new ASTSymbol(yytext)); return T_WORD; }
 [.\n]                   { return NEWLINE; }
-[\t ]+                  { /* Ignore whitespace */; }
+{WS}                    { /* Ignore whitespace */; }
 %%

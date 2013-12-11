@@ -10,37 +10,38 @@
 #define YYSTYPE ASTNodeSP
 
 ASTNodeSP prog;
-void yyerror(const char *str) 
-{
-  fprintf(stderr,"error: %s\n",str);
-} // Better error message
-int yywrap() {return 1;}
+int yyerror(char *s);
 int yylex(void);
 
 %}
 
-/*%union {
+%union{
   int   num;
   char *str;
-}*/
+}
 
-%token T_NUMBER 
-%token T_WORD T_STRING
+%type <int> expr
+%type <str> include
+%token TOKEN_NUMBER
+%token TOKEN_WORD TOKEN_STRING
 %token P_EXCL NEWLINE
-%token A AND BIGR BYES CAN COMMENT DIAF GIMMEH GTFO HAI HAS 
-%token I IM IN ITZ IZ KTHX KTHXBYE LIEK LETTAR LINE LOL MAH 
-%token NERF NERFZ NOT NOWAI OR OUTTA OVAR OVARZ R 
-%token SMALR STDIN THAN TIEMZ TIEMZD UP UPZ VISIBLE 
+%token A AND BIGR BYES CAN COMMENT DIAF GIMMEH GTFO HAI HAS
+%token I IM IN ITZ IZ KTHX KTHXBYE LIEK LETTAR LINE LOL MAH
+%token NERF NERFZ NOT NOWAI OR OUTTA OVAR OVARZ R
+%token SMALR STDIN THAN TIEMZ TIEMZD UP UPZ VISIBLE
 %token WORD XOR YARLY YR P_QMARK
-
-/*%type <str> include*/
-
-%expect 102
-
 %start program
 
 %%
+
 program : prog_start stmts prog_end { prog = $2; }
+;
+
+prog_start : HAI end_stmt
+;
+
+prog_end   : KTHXBYE
+           | prog_end end_stmt
 ;
 
 array : array_index array
@@ -129,7 +130,7 @@ increment_expr : /* empty (defaults to 1) */
 ;
 
 initializer: ITZ r_value { $$ = $2; }
-           | /* empty */ { $$ = ASTNodeSP(new ASTString("")); }
+           | /* empty */ { $$ = ASTNodeSP(new ASTString(""));}
 ;
 
 input_type : /* empty */
@@ -153,13 +154,6 @@ loop : IM IN YR T_WORD end_stmt stmts KTHX
 ;
 
 output : VISIBLE expr { $$ = ASTNodeSP(new ASTOut(ASTExpressionSP(new ASTExpression($2)))); }
-;
-
-prog_start : HAI end_stmt
-;
-
-prog_end   : KTHXBYE
-           | prog_end end_stmt
 ;
 
 r_value : expr
@@ -196,6 +190,19 @@ then : end_stmt
 ;
 
 %%
+int yyerror(string s)
+{
+  extern int yylineno;	// defined and maintained in lex.c
+  extern char *yytext;	// defined and maintained in lex.c
+  
+  cerr << "ERROR: " << s << " at symbol \"" << yytext;
+  cerr << "\" on line " << yylineno << endl;
+  exit(1);
+}
+int yyerror(char *s)
+{
+  return yyerror(string(s));
+}
 int main(int argc, char **argv)
 {
   yyparse();
