@@ -32,7 +32,7 @@ void ASTSymbol::print(std::ostream &out) const
 void ASTSymbol::translate(std::ostream &out)
 {
 	if (value) {
-		out << "string " << name << " = \"" << value->str() << "\";" << endl;
+		out << "string " << name << " = " << value->str() << ";" << endl;
 	} else {
 		out << "double " << name << " = " << val->eval() << ";" << endl;
 	}
@@ -54,12 +54,12 @@ string ASTString::str() const
 
 void ASTString::print(std::ostream &out) const
 {
-	out << "\"" << value << "\"";
+	out << value;
 }
 
 void ASTString::translate(std::ostream &out)
 {
-	out << " \"" << value << "\" ";
+	out << " " << value << " ";
 }
 
 ASTNumber::ASTNumber(double value_):value(value_){}
@@ -108,7 +108,7 @@ double ASTSub::eval() const
 
 void ASTSub::print(std::ostream &out) const
 {
-	out << "(" << *lhs << "+" << *rhs << ")";
+	out << "(" << *lhs << "-" << *rhs << ")";
 }
 
 void ASTSub::translate(std::ostream &out)
@@ -148,7 +148,7 @@ double ASTDiv::eval() const
 
 void ASTDiv::print(std::ostream &out) const
 {
-	out << "(" << *lhs << "*" << *rhs << ")";
+	out << "(" << *lhs << "/" << *rhs << ")";
 }
 
 void ASTDiv::translate(std::ostream &out)
