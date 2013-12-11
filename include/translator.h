@@ -8,7 +8,7 @@ class Translator
 {
 public:
 	virtual void translate(const std::string &file, ASTNodeSP program)=0;
-	~Translator();
+	virtual ~Translator();
 };
 typedef std::shared_ptr < Translator > TranslatorSP;
 

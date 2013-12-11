@@ -40,8 +40,10 @@ public:
 		generate();
 		delete out;
 	}
-	~CPPTranslator();
+	virtual ~CPPTranslator();
 };
+
+CPPTranslator::~CPPTranslator() {}
 
 TranslatorSP CreateCPPTranslator() {
 	return TranslatorSP(new CPPTranslator());
