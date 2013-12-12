@@ -1,10 +1,10 @@
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "ast.h"
-#define YYSTYPE ASTNodeSP
-#include "lolcode.tab.hpp"
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include "ast.h"
+	#define YYSTYPE ASTNodeSP
+	#include "lolcode.tab.hpp"
 %}
 
 

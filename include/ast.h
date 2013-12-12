@@ -1,3 +1,4 @@
+
 #pragma once
 #include <memory>
 #include <list>
@@ -42,20 +43,20 @@ public:
 };
 typedef std::shared_ptr < ASTString > ASTStringSP;
 
-class ASTSymbol : public ASTNode
+class ASTVariable : public ASTNode
 {
 public:
 	std::string name;
 	ASTNumberSP val;
 	ASTStringSP value;
-	ASTSymbol(const std::string &name_);
-	ASTSymbol(const std::string &name_, const ASTNumberSP &val_);
-	ASTSymbol(const std::string &name_, const ASTStringSP &value_);
+	ASTVariable(const std::string &name_);
+	ASTVariable(const std::string &name_, const ASTNumberSP &val_);
+	ASTVariable(const std::string &name_, const ASTStringSP &value_);
 	virtual double eval() const;
 	virtual void print(std::ostream &out) const;
 	virtual void translate(std::ostream &out);
 };
-typedef std::shared_ptr < ASTSymbol > ASTSymbolSP;
+typedef std::shared_ptr < ASTVariable > ASTVariableSP;
 
 class ASTSum : public ASTNode
 {
@@ -138,11 +139,11 @@ public:
 class ASTIn : public ASTNode
 {
 public:
-	ASTSymbolSP var;
+	ASTVariableSP var;
 	virtual double eval() const;
 	virtual void print(std::ostream &out) const;
 	virtual void translate(std::ostream &out);
-	ASTIn(const ASTSymbolSP &var_);
+	ASTIn(const ASTVariableSP &var_);
 };
 
 class ASTOut : public ASTNode

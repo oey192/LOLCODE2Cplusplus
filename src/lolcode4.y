@@ -1,4 +1,5 @@
 %{
+	#define YYSTYPE ASTNodeSP
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
@@ -6,22 +7,33 @@
 	#include <iostream>
 	#include "ast.h"
 	#include "translator.h"
-	#define YYSTYPE ASTNodeSP
-	ASTNodeSP prog;
 	int yylex(void);
+	using namespace std;
+	
+int yyerror(string s) {
+	extern int yylineno;
+	extern char *yytext;
+	cerr << "ERROR: " << s << " at symbol \"" << yytext;
+	cerr << "\" on line " << yylineno << endl;
+	exit(1);
+}
+int yyerror(char *s) {
+	return yyerror(string(s));
+}
 %}
+
 
 %token EOL
 
 %token WIN FAIL
 
 %token HAI KTHXBYE VISIBLE GIMMEH VARIABLE_DECLARATION ITZ VARIABLE_ASSIGNMENT AN HAS_STDIO YR EXCLAMATION
-%token OPERATOR_SUM OPERATOR_DIFF OPERATOR_PROD OPERATOR_DIV OPERATOR_MOD OPERATOR_MIN OPERATOR_MAX 
-%token OPERATOR_SAME OPERATOR_NOTSAME OPERATOR_AND OPERATOR_OR OPERATOR_XOR OPERATOR_NOT
+%token OPERATOR_SUM OPERATOR_DIFF OPERATOR_PROD OPERATOR_DIV OPERATOR_MOD OPERATOR_MIN OPERATOR_MAX
+%token OPERATOR_SAME OPERATOR_NOTSAME OPERATOR_AND OPERATOR_OR OPERATOR_XOR OPERATOR_NOT COMMENT
 %token FOR_END FOR_START FOR_UPPIN FOR_NERFIN FOR_TIL FOR_WILE IF_START IF_YES IF_NOT IF_MAYBE
-%token CONDITIONAL_END SWITCH_START SWITCH_CASE SWITCH_DEFAULT SWITCH_BREAK
+%token CONDITIONAL_END SWITCH_START SWITCH_CASE SWITCH_DEFAULT SWITCH_BREAK OPERATOR_CONCAT
 
-%token String Number Variable
+%token STRING NUMBER VARIABLE
 
 %start Program
 
@@ -33,13 +45,13 @@ Program:
         ;
 
 ProgramStart:
-          HAI Number EOL   	{ GEN_PROGRAM_START(); }
-        | HAI EOL        	{ GEN_PROGRAM_START(); }
+          HAI NUMBER EOL   	{ printf("Program Start"); }
+        | HAI EOL        	{ printf("Program Start"); }
         ;
 
 ProgramEnd:
-          KTHXBYE EOL      	{ GEN_PROGRAM_END(); }
-        | KTHXBYE        	{ GEN_PROGRAM_END(); }
+          KTHXBYE EOL      	{ printf("Program End"); }
+        | KTHXBYE        	{ printf("Program End"); }
         ;
 
 ProgramBody:
@@ -66,41 +78,43 @@ StatementList:
 
 SwitchStatement:
         NumericalExpression EOL
-        SWITCH_START EOL { GEN_SWITCH_START($1); }
+        SWITCH_START EOL { cout << "Switch Start " << *$1 << endl; }
                 SwitchCases
-        CONDITIONAL_END { GEN_COND_END(); }
+        CONDITIONAL_END { cout << "CONDITIONAL END " << endl; }
         ;
 
 SwitchStatementList:
         /* nothing */
         | SwitchStatementList Statement EOL
-        | SwitchStatementList SWITCH_BREAK EOL { GEN_BREAK(); }
+        | SwitchStatementList SWITCH_BREAK EOL { cout << "BREAK" << endl; }
         ;
 
 SwitchCases:
         /* nothing */
-        | SwitchCases SWITCH_CASE String EOL { GEN_SWITCH_CASE_START($3); } SwitchStatementList { GEN_SWITCH_CASE_END(); }
-        | SwitchCases SWITCH_DEFAULT EOL { GEN_SWITCH_CASE_DEFAULT_START(); } SwitchStatementList { GEN_SWITCH_CASE_END(); }
+        | SwitchCases SWITCH_CASE STRING EOL { cout << "Switch Case Start " << *$3 << endl; } 
+          SwitchStatementList { cout << "Switch Case End " << endl; }
+        | SwitchCases SWITCH_DEFAULT EOL { cout << "Switch Case Default Start " << endl; } 
+          SwitchStatementList { cout << "Switch Case End " << endl; }
         ;
 
 IfStatement:
         NumericalExpression EOL
         IF_START EOL
-                IF_YES EOL { GEN_IF_START($1); } StatementList
+                IF_YES EOL { cout << "If Start " << *$1 << endl; } StatementList
                 IfContents
-        CONDITIONAL_END { GEN_COND_END(); }
+        CONDITIONAL_END { cout << "Conditional End " << endl; }
         ;
 
 IfContents:
         /* nothing */
-        | IfContents IF_NOT EOL { GEN_IF_ELSE(); } StatementList
-        | IfContents IF_MAYBE NumericalExpression { GEN_IF_ELSE_IF($3); } StatementList
+        | IfContents IF_NOT EOL { cout << "If Else" << endl;} StatementList
+        | IfContents IF_MAYBE NumericalExpression { cout << "If ElseIf " << *$3 << endl; } StatementList
         ;
 
 ForConstruct:
-        FOR_START Variable ForOperation YR Variable ForCondition EOL { GEN_FOR_START($5, $6, $3); }
+        FOR_START VARIABLE ForOperation YR VARIABLE ForCondition EOL { cout << "For Loop Start " << *$5 <<" "<< *$6<<" " << *$3 << endl; }
                 StatementList
-        FOR_END Variable { GEN_FOR_END(); }
+        FOR_END VARIABLE { cout << "For Loop End" << endl; }
         ;
 
 ForOperation: 
@@ -109,78 +123,79 @@ ForOperation:
         ;
 
 ForCondition:
-          FOR_TIL Operation 		{ $$ = "!" + $2; }
-        | FOR_WILE Operation 		{ $$ = $2; }
+          FOR_TIL Operation 		{  }
+        | FOR_WILE Operation 		{  }
         ;
 
 Expression:
           NumericalExpression
-        | String
+        | STRING
         ;
 
 NumericalExpression:
           Operation
-        | Number
-        | Variable
+        | NUMBER
+        | VARIABLE
         ;
+        
+StringExpression:
+		StringOperation
+	   | STRING
+	   | VARIABLE
+	   ;
 
 Operation:
-          OPERATOR_SUM NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("+",   $2, $4); }
-        | OPERATOR_DIFF NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("-",   $2, $4); }
-        | OPERATOR_PROD NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("*",   $2, $4); }
-        | OPERATOR_DIV NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("/",   $2, $4); }
-        | OPERATOR_MOD NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("%",   $2, $4); }
-        | OPERATOR_SAME Expression AN Expression 					{ $$ = GEN_OPERATOR("==",  $2, $4); }
-        | OPERATOR_NOTSAME Expression AN Expression 				{ $$ = GEN_OPERATOR("!=",  $2, $4); }
-        | OPERATOR_AND NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("&&",  $2, $4); }
-        | OPERATOR_OR NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("||",  $2, $4); }
-        | OPERATOR_XOR NumericalExpression AN NumericalExpression 	{ $$ = GEN_OPERATOR("!=",  $2, $4); }
-        | OPERATOR_NOT NumericalExpression 						{ $$ = GEN_OPERATOR("!",   "", $2); }
-        | OPERATOR_MAX NumericalExpression AN NumericalExpression 	{ $$ = GEN_FUNCTION("max", $2, $4); }
-        | OPERATOR_MIN NumericalExpression AN NumericalExpression 	{ $$ = GEN_FUNCTION("min", $2, $4); }
+          OPERATOR_SUM NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator + " << *$4 << endl; }
+        | OPERATOR_DIFF NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator - " << *$4 << endl; }
+        | OPERATOR_PROD NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator * " << *$4 << endl; }
+        | OPERATOR_DIV NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator / " << *$4 << endl; }
+        | OPERATOR_MOD NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator % " << *$4 << endl; }
+        | OPERATOR_SAME Expression AN Expression 					{ cout << *$2 << "Operator == " << *$4 << endl; }
+        | OPERATOR_NOTSAME Expression AN Expression 				{ cout << *$2 << "Operator != " << *$4 << endl; }
+        | OPERATOR_AND NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator && " << *$4 << endl; }
+        | OPERATOR_OR NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator || " << *$4 << endl; }
+        | OPERATOR_XOR NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator != " << *$4 << endl; }
+        | OPERATOR_NOT NumericalExpression 						{ cout << "Operator ! " << *$2 << endl; }
+        | OPERATOR_MAX NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator max " << *$4 << endl; }
+        | OPERATOR_MIN NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator min " << *$4 << endl; }
         ;
+        
+StringOperation:
+	 	OPERATOR_CONCAT StringExpression AN StringExpression		{ cout << *$2 << " Smoosh " << *$4 << endl; }
+	   ;
 
 VariableAssignment:
-          Variable VARIABLE_ASSIGNMENT NumericalExpression  { GEN_ASSIGN_VAR($1, $3, INT); }
-        | Variable VARIABLE_ASSIGNMENT String 			{ GEN_ASSIGN_VAR($1, $3, STRING); }
+          VARIABLE VARIABLE_ASSIGNMENT NumericalExpression  { cout << "Variable Assignment " << *$1 << *$3 << "Int" << endl; }
+        | VARIABLE VARIABLE_ASSIGNMENT StringExpression 	{ cout << "Variable Assignment " << *$1 << *$3 << "String" << endl; }
         ;
 
 VariableDeclaration:
-          VARIABLE_DECLARATION Variable  				{ GEN_DECLARE_VAR($2, "", NONE); }
-        | VARIABLE_DECLARATION Variable ITZ Number 		{ GEN_DECLARE_VAR($2, $4, INT); }
-        | VARIABLE_DECLARATION Variable ITZ String 		{ GEN_DECLARE_VAR($2, $4, STRING); }
+          VARIABLE_DECLARATION VARIABLE  				{ cout << "Variable Declaration " << *$2 << "None" << endl; }
+        | VARIABLE_DECLARATION VARIABLE ITZ NUMBER 		{ cout << "Variable Declaration " << *$2 << *$4 << "Int" << endl; }
+        | VARIABLE_DECLARATION VARIABLE ITZ STRING 		{ cout << "Variable Declaration " << *$2 << *$4 << "String" << endl; }
         ;
 
 ConsoleInput:
-        GIMMEH Variable { GEN_INPUT($2); }
+        GIMMEH VARIABLE { cout << "Input " << *$2 << endl; }
 
 ConsoleOutput:
-          VISIBLE VisibleStatementArgs { GEN_PRINT("\"\\n\""); }
+          VISIBLE VisibleStatementArgs { cout << "OUTPUT: " << *$2 << endl; }
         | VISIBLE VisibleStatementArgs EXCLAMATION        
         ;
 
 VisibleStatementArgs:
-          NumericalExpression 					{ GEN_PRINT($1); }
-        | String 								{ GEN_PRINT($1); }
-        | VisibleStatementArgs NumericalExpression 	{ GEN_PRINT($2); }
-        | VisibleStatementArgs String 				{ GEN_PRINT($2); }
+          NumericalExpression 					{ cout << "Print " << *$1 << endl; }
+        | STRING 								{ cout << "Print " << *$1 << endl; }
+        | VisibleStatementArgs NumericalExpression 	{ cout << "Print " << *$2 << endl; }
+        | VisibleStatementArgs STRING 				{ cout << "Print " << *$2 << endl; }
         ;
 %%
-int yyerror(string s) {
-	extern int yylineno;	// defined and maintained in lex.c
-	extern char *yytext;	// defined and maintained in lex.c
-	cerr << "ERROR: " << s << " at symbol \"" << yytext;
-	cerr << "\" on line " << yylineno << endl;
-	exit(1);
-}
-int yyerror(char *s) {
-	return yyerror(string(s));
-}
+
 int main(int argc, char **argv) {
 	yyparse();
-	if (prog) {
+	/*if (Program) {
 		TranslatorSP cpp = CreateCPPTranslator();
-		cpp->translate("tmp/a.cpp", prog);
-	}
+		cpp->translate("tmp/a.cpp", Program);
+	}*/
 	return 0;
 }

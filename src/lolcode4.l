@@ -1,22 +1,22 @@
 %{
+	#define YYSTYPE ASTNodeSP
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
 	#include "ast.h"
-	#define YYSTYPE ASTNodeSP
 	#include "lolcode.tab.hpp"
 %}
 
-
+%%
 OBTW(.|\r|\n)*TLDR\r?\n {}
 BTW[^\r\n]*\r?\n 	{ return COMMENT; }
 "HAI"			{ return HAI; }
 "KTHXBYE"			{ return KTHXBYE; }
 "VISIBLE"			{ return VISIBLE; }
 "GIMMEH"			{ return GIMMEH; }
-"I HAS A"			{ return VAR_DECLARATION; }
+"I HAS A"			{ return VARIABLE_DECLARATION; }
 "ITZ"			{ return ITZ; }
-"R"				{ return VAR_ASSIGNMENT; }
+"R"				{ return VARIABLE_ASSIGNMENT; }
 "SUM OF"			{ return OPERATOR_SUM; }
 "DIFF OF"			{ return OPERATOR_DIFF; }
 "PRODUKT OF"		{ return OPERATOR_PROD; }
@@ -31,10 +31,10 @@ BTW[^\r\n]*\r?\n 	{ return COMMENT; }
 "IM OUTTA YR"		{ return FOR_END; }
 "IM IN YR"		{ return FOR_START; }
 "YR"				{ return YR; }
-"UPPIN"			{ sscanf(yytext, "%d", &yylval->value); return UPPIN }
-"NERFIN"			{ sscanf(yytext, "%d", &yylval->value); return NERFIN }
-"TIL"			{ sscanf(yytext, "%d", &yylval->value); return TIL }
-"WILE"			{ sscanf(yytext, "%d", &yylval->value); return WHILE }
+"UPPIN"			{ return FOR_UPPIN; }
+"NERFIN"			{ return FOR_NERFIN; }
+"TIL"			{ return FOR_TIL; }
+"WILE"			{ return FOR_WILE; }
 "WIN"			{ return WIN; }
 "FAIL"			{ return FAIL; }
 "BOTH OF"			{ return OPERATOR_AND; }
@@ -50,11 +50,13 @@ BTW[^\r\n]*\r?\n 	{ return COMMENT; }
 "OMGWTF"			{ return SWITCH_DEFAULT; }
 "GTFO"			{ return SWITCH_BREAK; }
 "OIC"			{ return CONDITIONAL_END; }
+"SMOOSH"			{ return OPERATOR_CONCAT; }
 
-[a-zA-Z][a-zA-Z0-9_]* 		{ sscanf(yytext, "%d", &yylval->value); return Variable; }
-('-'|'+')?[0-9]+(.[0-9]+)? 	{ sscanf(yytext, "%d", &yylval->value); return Number }
-\"[^\r\n\"]*\"        		{ sscanf(yytext, "%d", &yylval->value); return String }
-!                             { SAVE_STRING_AND_TOKEN(EXCLAMATION); }
+[a-zA-Z][a-zA-Z0-9_]* 		{ yylval = ASTNodeSP(new ASTVariable(yytext)); return VARIABLE; }
+('-'|'+')?[0-9]+(.[0-9]+)? 	{ yylval = ASTNodeSP(new ASTNumber(atof(yytext))); return NUMBER; }
+\"[^\r\n\"]*\"        		{ yylval = ASTNodeSP(new ASTString(yytext)); return STRING; }
+!                             { return EXCLAMATION; }
 \r?\n                         { return EOL; }
 ,                             { return EOL; }
 [ \t]                         ;
+%%

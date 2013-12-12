@@ -13,23 +13,23 @@ std::ostream& operator<< (std::ostream&out, const ASTNode &node)
   return out;
 }
 
-ASTSymbol::ASTSymbol(const std::string &name_):name(name_){}
+ASTVariable::ASTVariable(const std::string &name_):name(name_){}
 
-ASTSymbol::ASTSymbol(const std::string &name_, const ASTNumberSP &val_):name(name_), val(val_){}
+ASTVariable::ASTVariable(const std::string &name_, const ASTNumberSP &val_):name(name_), val(val_){}
 
-ASTSymbol::ASTSymbol(const std::string &name_, const ASTStringSP &value_):name(name_), value(value_){}
+ASTVariable::ASTVariable(const std::string &name_, const ASTStringSP &value_):name(name_), value(value_){}
 
-double ASTSymbol::eval() const
+double ASTVariable::eval() const
 {
 	return (val)? val->eval() : value->eval();
 }
 
-void ASTSymbol::print(std::ostream &out) const
+void ASTVariable::print(std::ostream &out) const
 {
 	out << name;
 }
 
-void ASTSymbol::translate(std::ostream &out)
+void ASTVariable::translate(std::ostream &out)
 {
 	if (value) {
 		out << "string " << name << " = " << value->str() << ";" << endl;
@@ -207,7 +207,7 @@ void ASTStatements::translate(std::ostream &out)
 	}
 }
 
-ASTIn::ASTIn(const ASTSymbolSP &var_)
+ASTIn::ASTIn(const ASTVariableSP &var_)
   : var(var_)
 {}
 
