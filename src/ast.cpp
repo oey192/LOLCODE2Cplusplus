@@ -394,7 +394,29 @@ ASTIf::ASTIf(){}
 
 void ASTIf::print(std::ostream &out) const
 {
-	out << "if statement" << endl;
+	/*out << "if statement" << endl;
+	for (Clauses::const_iterator i = clauses.begin(); i != clauses.end(); ++i) {
+		out << "if (" << i->first << ") {" << endl;
+		out << i->second << "}" << endl;
+	}*/
+	int j = 0;
+	for (Clauses::const_iterator i = clauses.begin(); i != clauses.end(); ++i) {
+		if (j == 0) {
+			cout << "if (";
+			(*i).first->translate(cout);
+			cout << ") {" << endl;
+			(*i).second->translate(cout);
+			cout << "}";
+		} else {
+			cout << "else if (";
+			(*i).first->translate(cout);
+			cout << ") {" << endl;
+			(*i).second->translate(cout);
+			cout << "}";
+		}
+		cout << endl;
+		++j;
+	}
 }
 
 void ASTIf::translate(std::ostream &out)
@@ -403,15 +425,15 @@ void ASTIf::translate(std::ostream &out)
 	for (Clauses::const_iterator i = clauses.begin(); i != clauses.end(); ++i) {
 		if (j == 0) {
 			out << "if (";
-			(*i).first->translate(out);
+			i->first->translate(out);
 			out << ") {" << endl;
-			(*i).second->translate(out);
+			i->second->translate(out);
 			out << "}";
 		} else {
 			out << "else if (";
-			(*i).first->translate(out);
+			i->first->translate(out);
 			out << ") {" << endl;
-			(*i).second->translate(out);
+			i->second->translate(out);
 			out << "}";
 		}
 		out << endl;

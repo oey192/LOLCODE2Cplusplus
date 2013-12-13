@@ -315,8 +315,8 @@ public:
 class ASTOut : public ASTNode
 {
 public:
-	bool newline;
 	ASTExpressionsSP expressions;
+	bool newline;
 	//virtual double eval() const;
 	virtual void print(std::ostream &out) const;
 	virtual void translate(std::ostream &out);

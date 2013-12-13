@@ -2,7 +2,7 @@
 	#define YYSTYPE ASTNodeSP
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include <string.h>
+	#include <string>
 	#include <typeinfo>
 	#include <iostream>
 	#include "ast.h"
@@ -103,20 +103,20 @@ IfStatement:
         NumericalExpression EOL
         IF_START EOL
                 IF_YES EOL StatementList
-                IfContents          { (dynamic_cast<ASTIf&>(*$8)).clauses.push_back(make_pair($1, dynamic_pointer_cast<ASTStatements>($7))); $$ = $1; }
-        CONDITIONAL_END { cout << "Conditional End " << endl; }
+                IfContents
+        CONDITIONAL_END                     { (dynamic_cast<ASTIf&>(*$8)).clauses.push_front(make_pair($1, dynamic_pointer_cast<ASTStatements>($7))); $$ = $8; cout << "$$: " << *$$ << endl; }
         ;
 
 IfContents:
         /* nothing */                               { $$ = ASTNodeSP(new ASTIf()); }
-        | IfContents IF_NOT EOL { cout << "If Else" << endl;} StatementList { (dynamic_cast<ASTIf&>(*$1)).clauses.push_back(make_pair(ASTNodeSP(new ASTTrue()), dynamic_pointer_cast<ASTStatements>($4))); $$ = $1; }
-        | IfContents IF_MAYBE NumericalExpression { cout << "If ElseIf " << *$3 << endl; } StatementList { (dynamic_cast<ASTIf&>(*$1)).clauses.push_back(make_pair($3, dynamic_pointer_cast<ASTStatements>($4))); $$ = $1; }
+        | IfContents IF_NOT EOL StatementList { (dynamic_cast<ASTIf&>(*$1)).clauses.push_back(make_pair(ASTNodeSP(new ASTTrue()), dynamic_pointer_cast<ASTStatements>($4))); $$ = $1; }
+        | IfContents IF_MAYBE NumericalExpression StatementList { (dynamic_cast<ASTIf&>(*$1)).clauses.push_back(make_pair($3, dynamic_pointer_cast<ASTStatements>($4))); $$ = $1; }
         ;
 
 ForConstruct:
-        FOR_START VARIABLE ForOperation YR VARIABLE ForCondition EOL { cout << "For Loop Start " << *$5 <<" "<< *$6<<" " << *$3 << endl; }
-                StatementList                                           { $$ = ASTNodeSP(new ASTLoop(dynamic_pointer_cast<ASTPlusEquals>($3), dynamic_pointer_cast<ASTVariable>($5), $6, dynamic_pointer_cast<ASTStatements>($8))); }
-        FOR_END VARIABLE { cout << "For Loop End" << endl; }
+        FOR_START VARIABLE ForOperation YR VARIABLE ForCondition EOL
+                StatementList
+        FOR_END VARIABLE            { $$ = ASTNodeSP(new ASTLoop(dynamic_pointer_cast<ASTPlusEquals>($3), dynamic_pointer_cast<ASTVariable>($5), $6, dynamic_pointer_cast<ASTStatements>($8))); }
         ;
 
 ForOperation: 
@@ -194,11 +194,12 @@ VisibleStatementArgs:
         ;
 %%
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
 	yyparse();
+    string filename = argv[1];
 	if (prog) {
 		TranslatorSP cpp = CreateCPPTranslator();
-		cpp->translate("tmp/a.cpp", prog);
+		cpp->translate("tmp/" + filename + ".cpp", prog);
 	}
 	return 0;
 }
