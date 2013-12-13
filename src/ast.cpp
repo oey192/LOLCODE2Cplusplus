@@ -69,7 +69,7 @@ void ASTString::print(std::ostream &out) const
 
 void ASTString::translate(std::ostream &out)
 {
-	out << " " << value << " ";
+	out << " string(" << value << ") ";
 }
 
 ASTNumber::ASTNumber(double value_):value(value_){}
@@ -355,9 +355,9 @@ void ASTSmoosh::translate(std::ostream &out)
 
 	}
 
-	if (one || two) {
+	//if (one || two) {
 		out << " + ";
-	}
+	//}
 	rhs->translate(out);
 	out << " ";
 }

@@ -10,7 +10,7 @@ VISIBLE "You got the password right!"
 MEBBE BOTH SAEM input AN "nope"
 VISIBLE "Not really..."
 MEBBE DIFFRINT 4 AN input
-VISIBLE "Now you can't get to the end"
+VISIBLE "Now there's only one way to get to the end"
 NO WAI
 VISIBLE "try again"
 OIC

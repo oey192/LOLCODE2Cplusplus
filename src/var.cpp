@@ -16,6 +16,10 @@ var::var(double dNum) {
 	setVal(dNum);
 }
 
+var::var(char *sVal) {
+	setVal(string(sVal));
+}
+
 var::var(string sVal) {
 	setVal(sVal);
 }
@@ -337,6 +341,20 @@ var operator+(string l, var r) {
 	} else if (r.type == STRING) {
 		ans.setVal(l + r.getsVal());
 	}
+	return ans;
+}
+
+var operator+(int l, string r) {
+	ostringstream str;
+	str << l;
+	var ans(str.str() + r);
+	return ans;
+}
+
+var operator+(string l, int r) {
+	ostringstream str;
+	str << r;
+	var ans(l + str.str());
 	return ans;
 }
 

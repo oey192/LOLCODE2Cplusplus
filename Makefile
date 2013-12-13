@@ -43,7 +43,7 @@ bin/lolcode: $(OBJS)
 #lolcode: bin/lolcode.tab.o bin/lolcode.tab.o
 #	$(CXX) -o $@ $^
 
-tests: test1 test2 test3 test4 test5 test6
+tests: test1 test2 test3 test4 test5 test6 test7
 
 runTests: tests
 	./bin/test1
@@ -52,8 +52,9 @@ runTests: tests
 	./bin/test4
 	./bin/test5
 	./bin/test6
+	./bin/test7
 
-test1 test2 test3 test4 test5 test6: bin/lolcode bin/var.o
+test1 test2 test3 test4 test5 test6 test7: bin/lolcode bin/var.o
 	./bin/lolcode $@ < test/$@.lol
 	$(CXX) -o bin/$@ $(CXXFLAGS) tmp/$@.cpp bin/var.o $(LDFLAGS)
 

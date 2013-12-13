@@ -12,6 +12,7 @@ public:
 	var();
 	var(int iNum);
 	var(double dNum);
+	var(char *sVal);
 	var(std::string sVal);
 
 	void setVal(int iNum_);
@@ -50,6 +51,8 @@ var operator+(var l, double r);
 var operator+(double l, var r);
 var operator+(var l, std::string r);
 var operator+(std::string l, var r);
+var operator+(int l, std::string r);
+var operator+(std::string l, int r);
 var operator+(double l, std::string r);
 var operator+(std::string l, double r);
 
