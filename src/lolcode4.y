@@ -104,7 +104,7 @@ IfStatement:
         IF_START EOL
                 IF_YES EOL StatementList
                 IfContents
-        CONDITIONAL_END                     { (dynamic_cast<ASTIf&>(*$8)).clauses.push_front(make_pair($1, dynamic_pointer_cast<ASTStatements>($7))); $$ = $8; cout << "$$: " << *$$ << endl; }
+        CONDITIONAL_END                     { (dynamic_cast<ASTIf&>(*$8)).clauses.push_front(make_pair($1, dynamic_pointer_cast<ASTStatements>($7))); $$ = $8; }
         ;
 
 IfContents:
@@ -164,7 +164,7 @@ Operation:
         ;
         
 StringOperation:
-	 	OPERATOR_CONCAT StringExpression AN StringExpression		{ $$ = ASTNodeSP(new ASTSmoosh($2, $4)); }
+	 	OPERATOR_CONCAT Expression AN Expression		           { $$ = ASTNodeSP(new ASTSmoosh($2, $4)); }
 	   ;
 
 VariableAssignment: /* May want to make this VAIRALBE VARIABLE_ASSIGNMENT Expression */

@@ -25,7 +25,7 @@ BTW[^\r\n]*\r?\n 	{ return COMMENT; }
 "BIGGR OF"		{ return OPERATOR_MAX; }
 "SMALLR OF"		{ return OPERATOR_MIN; }
 "BOTH SAEM"		{ return OPERATOR_SAME; }
-"DIFFRNT"			{ return OPERATOR_NOTSAME; }
+"DIFFRINT"			{ return OPERATOR_NOTSAME; }
 "AN"				{ return AN; }
 "CAN HAS STDIO?"	{ return HAS_STDIO; }
 "IM OUTTA YR"		{ return FOR_END; }

@@ -64,6 +64,7 @@ public:
 	virtual void translate(std::ostream &out);
 	ASTString(const std::string &value_);
 };
+typedef std::shared_ptr < ASTString > ASTStringSP;
 
 class ASTVariable : public ASTNode
 {

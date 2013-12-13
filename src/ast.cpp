@@ -292,9 +292,9 @@ void ASTNot::print(std::ostream &out) const
 
 void ASTNot::translate(std::ostream &out)
 {
-	out << " !";
+	out << " !(";
 	rhs->translate(out);
-	out << " ";
+	out << ") ";
 }
 
 ASTMax::ASTMax(const ASTNodeSP &lhs_, const ASTNodeSP &rhs_): lhs(lhs_), rhs(rhs_){}
@@ -338,9 +338,26 @@ void ASTSmoosh::print(std::ostream &out) const
 
 void ASTSmoosh::translate(std::ostream &out)
 {
+	bool one = true, two = true;
 	out << " ";
 	lhs->translate(out);
-	out << " + ";
+	try {
+		ASTString str = dynamic_cast<ASTString&>(*lhs);
+		one = false;
+	} catch (bad_cast) {
+
+	}
+
+	try {
+		ASTString str = dynamic_cast<ASTString&>(*rhs);
+		two = false;
+	} catch (bad_cast) {
+
+	}
+
+	if (one || two) {
+		out << " + ";
+	}
 	rhs->translate(out);
 	out << " ";
 }

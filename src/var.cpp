@@ -6,6 +6,19 @@
 using namespace std;
 
 
+var::var() {}
+
+var::var(int iNum) {
+	setVal(iNum);
+}
+
+var::var(double dNum) {
+	setVal(dNum);
+}
+
+var::var(string sVal) {
+	setVal(sVal);
+}
 
 void var::setVal(int iNum_) {
 	iNum = iNum_;
@@ -41,7 +54,6 @@ var& var::operator=(var rhs) {
 		} else if (rhs.type == STRING) {
 			this->setVal(rhs.getsVal());
 		}
-		//free rhs?
 	}
 	return *this;
 }
@@ -66,6 +78,106 @@ var& var::operator=(const char rhs[]) {
 
 var& var::operator=(string &rhs) {
 	setVal(rhs);
+
+	return *this;
+}
+
+
+var& var::operator+=(var rhs) {
+	if (this != &rhs) {
+		if (this->type == INT) {
+			if (rhs.type == INT) {
+				this->setVal(this->getiVal() + rhs.getiVal());
+			} else if (rhs.type == DOUBLE) {
+				this->setVal(this->getiVal() + rhs.getdVal());
+			} else if (rhs.type == STRING) {
+				ostringstream str;
+				str << this->getiVal();
+				this->setVal(str.str() + rhs.getsVal());
+			}
+		} else if (this->type == DOUBLE) {
+			if (rhs.type == INT) {
+				this->setVal(this->getdVal() + rhs.getiVal());
+			} else if (rhs.type == DOUBLE) {
+				this->setVal(this->getdVal() + rhs.getdVal());
+			} else if (rhs.type == STRING) {
+				ostringstream str;
+				str << this->getdVal();
+				this->setVal(str.str() + rhs.getsVal());
+			}
+		} else if (this->type == STRING) {
+			if (rhs.type == INT) {
+				ostringstream str;
+				str << rhs.getiVal();
+				this->setVal(this->getsVal() + str.str());
+			} else if (rhs.type == DOUBLE) {
+				ostringstream str;
+				str << rhs.getdVal();
+				this->setVal(this->getsVal() + str.str());
+			} else if (rhs.type == STRING) {
+				this->setVal(this->getsVal() + rhs.getsVal());
+			}
+		}
+	}
+	return *this;
+}
+
+var& var::operator+=(int rhs) {
+	if (this->type == INT) {
+		setVal(this->getiVal() + rhs);
+	} else if (this->type == DOUBLE) {
+		setVal(this->getdVal() + rhs);
+	} else if (this->type == STRING) {
+		ostringstream str;
+		str << rhs;
+		setVal(this->getsVal() + str.str());
+	}
+
+	return *this;
+}
+
+var& var::operator+=(double rhs) {
+	if (this->type == INT) {
+		setVal(this->getiVal() + rhs);
+	} else if (this->type == DOUBLE) {
+		setVal(this->getdVal() + rhs);
+	} else if (this->type == STRING) {
+		ostringstream str;
+		str << rhs;
+		setVal(this->getsVal() + str.str());
+	}
+
+	return *this;
+}
+
+var& var::operator+=(const char rhs[]) {
+	if (this->type == INT) {
+		ostringstream str;
+		str << this->getiVal();
+		setVal(str.str() + rhs);
+	} else if (this->type == DOUBLE) {
+		ostringstream str;
+		str << this->getdVal();
+		setVal(str.str() + rhs);
+	} else if (this->type == STRING) {
+		setVal(this->getsVal() + rhs);
+	}
+
+	return *this;
+}
+
+var& var::operator+=(string &rhs) {
+	if (this->type == INT) {
+		ostringstream str;
+		str << this->getiVal();
+		setVal(str.str() + rhs);
+	} else if (this->type == DOUBLE) {
+		ostringstream str;
+		str << this->getdVal();
+		setVal(str.str() + rhs);
+	} else if (this->type == STRING) {
+		setVal(this->getsVal() + rhs);
+	}
 
 	return *this;
 }
@@ -228,6 +340,19 @@ var operator+(string l, var r) {
 	return ans;
 }
 
+var operator+(double l, string r) {
+	ostringstream str;
+	str << l;
+	var ans(str.str() + r);
+	return ans;
+}
+
+var operator+(string l, double r) {
+	ostringstream str;
+	str << r;
+	var ans(l + str.str());
+	return ans;
+}
 
 var operator-(var l, var r) {
 	var ans;
@@ -351,7 +476,7 @@ var operator/(var l, var r) {
 	var ans;
 	if (l.type == INT) {
 		if (r.type == INT) {
-			ans.setVal(l.getiVal() / r.getiVal());
+			ans.setVal(1.0 * l.getiVal() / r.getiVal());
 		} else if (r.type == DOUBLE) {
 			ans.setVal(l.getiVal() / r.getdVal());
 		}
@@ -368,7 +493,7 @@ var operator/(var l, var r) {
 var operator/(var l, int r) {
 	var ans;
 	if (l.type == INT) {
-		ans.setVal(l.getiVal() / r);
+		ans.setVal(1.0 * l.getiVal() / r);
 	} else if (l.type == DOUBLE) {
 		ans.setVal(l.getdVal() / r);
 	}
@@ -378,7 +503,7 @@ var operator/(var l, int r) {
 var operator/(int l, var r) {
 	var ans;
 	if (r.type == INT) {
-		ans.setVal(l / r.getiVal());
+		ans.setVal(1.0 * l / r.getiVal());
 	} else if (r.type == DOUBLE) {
 		ans.setVal(l / r.getdVal());
 	}
@@ -650,11 +775,11 @@ bool operator==(var l, string r) {
 	if (l.type == INT) {
 		ostringstream str;
 		str << l.getiVal();
-		ans = (str.str() == r)
+		ans = (str.str() == r);
 	} else if (l.type == DOUBLE) {
 		ostringstream str;
 		str << l.getdVal();
-		ans = (str.str() == r)
+		ans = (str.str() == r);
 	} else if (l.type == STRING) {
 		ans = (l.getsVal() == r);
 	}
@@ -675,6 +800,18 @@ bool operator==(string l, var r) {
 		ans = (l == r.getsVal());
 	}
 	return ans;
+}
+
+bool operator==(double l, string r) {
+	ostringstream str;
+	str << l;
+	return (str.str() == r);
+}
+
+bool operator==(string l, double r) {
+	ostringstream str;
+	str << r;
+	return (l == str.str());
 }
 
 
@@ -777,11 +914,11 @@ bool operator!=(var l, string r) {
 	if (l.type == INT) {
 		ostringstream str;
 		str << l.getiVal();
-		ans = (str.str() != r)
+		ans = (str.str() != r);
 	} else if (l.type == DOUBLE) {
 		ostringstream str;
 		str << l.getdVal();
-		ans = (str.str() != r)
+		ans = (str.str() != r);
 	} else if (l.type == STRING) {
 		ans = (l.getsVal() != r);
 	}
@@ -802,6 +939,18 @@ bool operator!=(string l, var r) {
 		ans = (l != r.getsVal());
 	}
 	return ans;
+}
+
+bool operator!=(double l, string r) {
+	ostringstream str;
+	str << l;
+	return (str.str() != r);
+}
+
+bool operator!=(string l, double r) {
+	ostringstream str;
+	str << r;
+	return (l != str.str());
 }
 
 
@@ -865,7 +1014,7 @@ double max(double a, var b) {
 
 
 double min(double a, double b) {
-	return (a > b) ? a : b;
+	return (a < b) ? a : b;
 }
 
 double min(var a, var b) {

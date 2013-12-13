@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -27,6 +28,7 @@ public:
 		(*out) << "}" << endl;
 	}
 	void body(){
+		//(*out) << fixed << setprecision(1) << endl;
 		program->translate(*out);
 	}
 	void generate(){

@@ -9,9 +9,14 @@ class var {
 public:
 	vType type;
 
+	var();
+	var(int iNum);
+	var(double dNum);
+	var(std::string sVal);
+
 	void setVal(int iNum_);
 	void setVal(double dNum_);
-	void setVal(string sVal_);
+	void setVal(std::string sVal_);
 
 	int getiVal();
 	double getdVal();
@@ -23,22 +28,30 @@ public:
 	var& operator=(const char rhs[]);
 	var& operator=(std::string &rhs);
 
+	var& operator+=(var rhs);
+	var& operator+=(int rhs);
+	var& operator+=(double rhs);
+	var& operator+=(const char rhs[]);
+	var& operator+=(std::string &rhs);
+
 private:
 	int iNum;
 	double dNum;
 	std::string sVal;
 };
 
-istream& operator >> (istream &in, var &val);
-ostream& operator << (ostream &out, var &val);
+std::istream& operator >> (std::istream &in, var &val);
+std::ostream& operator << (std::ostream &out, var &val);
 
 var operator+(var l, var r);
 var operator+(var l, int r);
 var operator+(int l, var r);
 var operator+(var l, double r);
 var operator+(double l, var r);
-var operator+(var l, string r);
-var operator+(string l, var r);
+var operator+(var l, std::string r);
+var operator+(std::string l, var r);
+var operator+(double l, std::string r);
+var operator+(std::string l, double r);
 
 var operator-(var l, var r);
 var operator-(var l, int r);
@@ -52,11 +65,11 @@ var operator*(int l, var r);
 var operator*(var l, double r);
 var operator*(double l, var r);
 
-var operator-(var l, var r);
-var operator-(var l, int r);
-var operator-(int l, var r);
-var operator-(var l, double r);
-var operator-(double l, var r);
+var operator/(var l, var r);
+var operator/(var l, int r);
+var operator/(int l, var r);
+var operator/(var l, double r);
+var operator/(double l, var r);
 
 var operator%(var l, var r);
 var operator%(var l, int r);
@@ -79,16 +92,20 @@ bool operator==(var l, int r);
 bool operator==(int l, var r);
 bool operator==(var l, double r);
 bool operator==(double l, var r);
-bool operator==(var l, string r);
-bool operator==(string l, var r);
+bool operator==(var l, std::string r);
+bool operator==(std::string l, var r);
+bool operator==(double l, std::string r);
+bool operator==(std::string l, double r);
 
 bool operator!=(var l, var r);
 bool operator!=(var l, int r);
 bool operator!=(int l, var r);
 bool operator!=(var l, double r);
 bool operator!=(double l, var r);
-bool operator!=(var l, string r);
-bool operator!=(string l, var r);
+bool operator!=(var l, std::string r);
+bool operator!=(std::string l, var r);
+bool operator!=(double l, std::string r);
+bool operator!=(std::string l, double r);
 
 bool operator!(var r);
 
