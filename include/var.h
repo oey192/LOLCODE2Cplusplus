@@ -97,6 +97,8 @@ bool operator==(var l, double r);
 bool operator==(double l, var r);
 bool operator==(var l, std::string r);
 bool operator==(std::string l, var r);
+bool operator==(int l, std::string r);
+bool operator==(std::string l, int r);
 bool operator==(double l, std::string r);
 bool operator==(std::string l, double r);
 
@@ -107,6 +109,8 @@ bool operator!=(var l, double r);
 bool operator!=(double l, var r);
 bool operator!=(var l, std::string r);
 bool operator!=(std::string l, var r);
+bool operator!=(int l, std::string r);
+bool operator!=(std::string l, int r);
 bool operator!=(double l, std::string r);
 bool operator!=(std::string l, double r);
 

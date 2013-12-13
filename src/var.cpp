@@ -820,6 +820,18 @@ bool operator==(string l, var r) {
 	return ans;
 }
 
+bool operator==(int l, string r) {
+	ostringstream str;
+	str << l;
+	return (str.str() == r);
+}
+
+bool operator==(string l, int r) {
+	ostringstream str;
+	str << r;
+	return (l == str.str());
+}
+
 bool operator==(double l, string r) {
 	ostringstream str;
 	str << l;
@@ -957,6 +969,18 @@ bool operator!=(string l, var r) {
 		ans = (l != r.getsVal());
 	}
 	return ans;
+}
+
+bool operator!=(int l, string r) {
+	ostringstream str;
+	str << l;
+	return (str.str() != r);
+}
+
+bool operator!=(string l, int r) {
+	ostringstream str;
+	str << r;
+	return (l != str.str());
 }
 
 bool operator!=(double l, string r) {
