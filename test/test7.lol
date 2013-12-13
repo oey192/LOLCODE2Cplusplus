@@ -13,4 +13,7 @@ O RLY?
 YA RLY
 	VISIBLE "OR works"
 OIC
+I HAS A thisShouldBeNull
+thisShouldBeNull R DIFF OF troof AN boat
+VISIBLE "Less broken than JavaScript: " thisShouldBeNull
 KTHXBYE

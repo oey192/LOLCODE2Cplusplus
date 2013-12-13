@@ -2,7 +2,7 @@
 #include <string>
 
 
-enum vType {INT, DOUBLE, STRING};
+enum vType {NUL, INT, DOUBLE, STRING};
 
 
 class var {
