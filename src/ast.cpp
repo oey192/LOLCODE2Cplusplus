@@ -468,7 +468,12 @@ void ASTOut::print(std::ostream &out) const
 void ASTOut::translate(std::ostream &out)
 {
   out << "cout << ";
-  expressions->translate(out);
+  int j = 0;
+  for (ASTExpressions::Expressions::const_iterator i = expressions->expressions.begin(); i != expressions->expressions.end(); ++i) {
+  		if (j > 0) out << "<<";
+		(*i)->translate(out);
+		++j;
+	}
   if (newline) out << " << endl";
   out << ";" << endl;
 }

@@ -47,13 +47,13 @@ Program:
         ;
 
 ProgramStart:
-          HAI NUMBER EOL   	{ printf("Program Start"); }
-        | HAI EOL        	{ printf("Program Start"); }
+          HAI NUMBER EOL   	
+        | HAI EOL        	
         ;
 
 ProgramEnd:
-          KTHXBYE EOL      	{ printf("Program End"); }
-        | KTHXBYE        	{ printf("Program End"); }
+          KTHXBYE EOL      	
+        | KTHXBYE        	
         ;
 
 ProgramBody:
@@ -102,7 +102,7 @@ SwitchCases:
 IfStatement:
         NumericalExpression EOL
         IF_START EOL
-                IF_YES EOL { cout << "If Start " << *$1 << endl; } StatementList
+                IF_YES EOL StatementList
                 IfContents          { (dynamic_cast<ASTIf&>(*$8)).clauses.push_back(make_pair($1, dynamic_pointer_cast<ASTStatements>($7))); $$ = $1; }
         CONDITIONAL_END { cout << "Conditional End " << endl; }
         ;
