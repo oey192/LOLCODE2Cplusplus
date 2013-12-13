@@ -16,6 +16,7 @@ public:
 
 	void header(){
 		(*out) << "#include <iostream>" << endl;
+		(*out) << "#include <algorithm>" << endl;	//for min, max functions
 		(*out) << "#include <string>" << endl;
 		(*out) << "using namespace std;" << endl;
 		(*out) << endl;

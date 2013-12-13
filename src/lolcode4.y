@@ -20,6 +20,8 @@ int yyerror(string s) {
 int yyerror(char *s) {
 	return yyerror(string(s));
 }
+
+ASTNodeSP prog;
 %}
 
 
@@ -41,7 +43,7 @@ int yyerror(char *s) {
 Program:
         ProgramStart
         ProgramBody
-        ProgramEnd
+        ProgramEnd          { prog = $2; }
         ;
 
 ProgramStart:
@@ -55,9 +57,9 @@ ProgramEnd:
         ;
 
 ProgramBody:
-        /* nothing */
-        | ProgramBody EOL
-        | ProgramBody Statement EOL
+        /* nothing */                   { $$ = ASTNodeSP(new ASTStatements()); }
+        | ProgramBody EOL               { (dynamic_cast<ASTStatements&>(*$$)).statements.push_back($1); }
+        | ProgramBody Statement EOL     { (dynamic_cast<ASTStatements&>(*$1)).statements.push_back($2); $$ = $1;}
         ;
 
 Statement:
@@ -65,15 +67,15 @@ Statement:
         | ConsoleInput
         | VariableDeclaration
         | VariableAssignment
-        | HAS_STDIO
+        | HAS_STDIO             { $$ = ASTNodeSP(new ASTSTDIO()); }
         | ForConstruct
         | IfStatement
         | SwitchStatement
         ;
 
 StatementList:
-        /* nothing */
-        | StatementList Statement EOL
+        /* nothing */   { $$ = ASTNodeSP(new ASTStatements()); }
+        | StatementList Statement EOL { (dynamic_cast<ASTStatements&>(*$1)).statements.push_back($2); }
         ;
 
 SwitchStatement:
@@ -101,101 +103,102 @@ IfStatement:
         NumericalExpression EOL
         IF_START EOL
                 IF_YES EOL { cout << "If Start " << *$1 << endl; } StatementList
-                IfContents
+                IfContents          { (dynamic_cast<ASTIf&>(*$8)).clauses.push_back(make_pair($1, dynamic_pointer_cast<ASTStatements>($7))); $$ = $1; }
         CONDITIONAL_END { cout << "Conditional End " << endl; }
         ;
 
 IfContents:
-        /* nothing */
-        | IfContents IF_NOT EOL { cout << "If Else" << endl;} StatementList
-        | IfContents IF_MAYBE NumericalExpression { cout << "If ElseIf " << *$3 << endl; } StatementList
+        /* nothing */                               { $$ = ASTNodeSP(new ASTIf()); }
+        | IfContents IF_NOT EOL { cout << "If Else" << endl;} StatementList { (dynamic_cast<ASTIf&>(*$1)).clauses.push_back(make_pair(ASTNodeSP(new ASTTrue()), dynamic_pointer_cast<ASTStatements>($4))); $$ = $1; }
+        | IfContents IF_MAYBE NumericalExpression { cout << "If ElseIf " << *$3 << endl; } StatementList { (dynamic_cast<ASTIf&>(*$1)).clauses.push_back(make_pair($3, dynamic_pointer_cast<ASTStatements>($4))); $$ = $1; }
         ;
 
 ForConstruct:
         FOR_START VARIABLE ForOperation YR VARIABLE ForCondition EOL { cout << "For Loop Start " << *$5 <<" "<< *$6<<" " << *$3 << endl; }
-                StatementList
+                StatementList                                           { $$ = ASTNodeSP(new ASTLoop(dynamic_pointer_cast<ASTPlusEquals>($3), dynamic_pointer_cast<ASTVariable>($5), $6, dynamic_pointer_cast<ASTStatements>($8))); }
         FOR_END VARIABLE { cout << "For Loop End" << endl; }
         ;
 
 ForOperation: 
-          FOR_UPPIN 	{ $$ = $1; } 
-        | FOR_NERFIN 	{ $$ = $1; }
+          FOR_UPPIN 	{ $$ = ASTNodeSP(new ASTPlusEquals(1)); } 
+        | FOR_NERFIN 	{ $$ = ASTNodeSP(new ASTPlusEquals(-1)); }
         ;
 
 ForCondition:
-          FOR_TIL Operation 		{  }
-        | FOR_WILE Operation 		{  }
+          FOR_TIL Operation 		{ $$ = ASTNodeSP(new ASTNot($2)); }
+        | FOR_WILE Operation 		{ $$ = $2; }
         ;
 
-Expression:
+Expression:                 //done?
           NumericalExpression
+        | StringOperation
         | STRING
         ;
 
-NumericalExpression:
+NumericalExpression:        //done
           Operation
         | NUMBER
         | VARIABLE
         ;
         
-StringExpression:
+StringExpression:           //done
 		StringOperation
 	   | STRING
 	   | VARIABLE
 	   ;
 
 Operation:
-          OPERATOR_SUM NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator + " << *$4 << endl; }
-        | OPERATOR_DIFF NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator - " << *$4 << endl; }
-        | OPERATOR_PROD NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator * " << *$4 << endl; }
-        | OPERATOR_DIV NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator / " << *$4 << endl; }
-        | OPERATOR_MOD NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator % " << *$4 << endl; }
-        | OPERATOR_SAME Expression AN Expression 					{ cout << *$2 << "Operator == " << *$4 << endl; }
-        | OPERATOR_NOTSAME Expression AN Expression 				{ cout << *$2 << "Operator != " << *$4 << endl; }
-        | OPERATOR_AND NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator && " << *$4 << endl; }
-        | OPERATOR_OR NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator || " << *$4 << endl; }
-        | OPERATOR_XOR NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator != " << *$4 << endl; }
-        | OPERATOR_NOT NumericalExpression 						{ cout << "Operator ! " << *$2 << endl; }
-        | OPERATOR_MAX NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator max " << *$4 << endl; }
-        | OPERATOR_MIN NumericalExpression AN NumericalExpression 	{ cout << *$2 << "Operator min " << *$4 << endl; }
+          OPERATOR_SUM NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTSum($2, $4)); }
+        | OPERATOR_DIFF NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTSub($2, $4)); }
+        | OPERATOR_PROD NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTProduct($2, $4)); }
+        | OPERATOR_DIV NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTDiv($2, $4)); }
+        | OPERATOR_MOD NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTMod($2, $4)); }
+        | OPERATOR_SAME Expression AN Expression 					{ $$ = ASTNodeSP(new ASTEq($2, $4)); }
+        | OPERATOR_NOTSAME Expression AN Expression 				{ $$ = ASTNodeSP(new ASTNeq($2, $4)); }
+        | OPERATOR_AND NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTAnd($2, $4)); }
+        | OPERATOR_OR NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTOr($2, $4)); }
+        | OPERATOR_XOR NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTXor($2, $4)); }
+        | OPERATOR_NOT NumericalExpression 						    { $$ = ASTNodeSP(new ASTNot($2)); }
+        | OPERATOR_MAX NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTMax($2, $4)); }
+        | OPERATOR_MIN NumericalExpression AN NumericalExpression 	{ $$ = ASTNodeSP(new ASTMin($2, $4)); }
         ;
         
 StringOperation:
-	 	OPERATOR_CONCAT StringExpression AN StringExpression		{ cout << *$2 << " Smoosh " << *$4 << endl; }
+	 	OPERATOR_CONCAT StringExpression AN StringExpression		{ $$ = ASTNodeSP(new ASTSmoosh($2, $4)); }
 	   ;
 
-VariableAssignment:
-          VARIABLE VARIABLE_ASSIGNMENT NumericalExpression  { cout << "Variable Assignment " << *$1 << *$3 << "Int" << endl; }
-        | VARIABLE VARIABLE_ASSIGNMENT StringExpression 	{ cout << "Variable Assignment " << *$1 << *$3 << "String" << endl; }
+VariableAssignment: /* May want to make this VAIRALBE VARIABLE_ASSIGNMENT Expression */
+          VARIABLE VARIABLE_ASSIGNMENT NumericalExpression  { $$ = ASTNodeSP(new ASTVarAssignment(dynamic_pointer_cast<ASTVariable>($1), $3)); }
+        | VARIABLE VARIABLE_ASSIGNMENT StringExpression 	{ $$ = ASTNodeSP(new ASTVarAssignment(dynamic_pointer_cast<ASTVariable>($1), $3)); }
         ;
 
 VariableDeclaration:
-          VARIABLE_DECLARATION VARIABLE  				{ cout << "Variable Declaration " << *$2 << "None" << endl; }
-        | VARIABLE_DECLARATION VARIABLE ITZ NUMBER 		{ cout << "Variable Declaration " << *$2 << *$4 << "Int" << endl; }
-        | VARIABLE_DECLARATION VARIABLE ITZ STRING 		{ cout << "Variable Declaration " << *$2 << *$4 << "String" << endl; }
+          VARIABLE_DECLARATION VARIABLE  				{ $$ = ASTNodeSP(new ASTVarDeclaration(dynamic_pointer_cast<ASTVariable>($2))); }
+        | VARIABLE_DECLARATION VARIABLE ITZ NUMBER 		{ $$ = ASTNodeSP(new ASTVarDeclaration(dynamic_pointer_cast<ASTVariable>($2), $4)); /*might want to make NUMBER NumericalExpression*/}
+        | VARIABLE_DECLARATION VARIABLE ITZ STRING 		{ $$ = ASTNodeSP(new ASTVarDeclaration(dynamic_pointer_cast<ASTVariable>($2), $4)); /*might want to make STRING StringExpression */}
         ;
 
 ConsoleInput:
-        GIMMEH VARIABLE { cout << "Input " << *$2 << endl; }
+        GIMMEH VARIABLE { $$ = ASTNodeSP(new ASTIn(dynamic_pointer_cast<ASTVariable>($2))); }
 
 ConsoleOutput:
-          VISIBLE VisibleStatementArgs { cout << "OUTPUT: " << *$2 << endl; }
-        | VISIBLE VisibleStatementArgs EXCLAMATION        
+          VISIBLE VisibleStatementArgs              { $$ = ASTNodeSP(new ASTOut(dynamic_pointer_cast<ASTExpressions>($2), true)); }
+        | VISIBLE VisibleStatementArgs EXCLAMATION  { $$ = ASTNodeSP(new ASTOut(dynamic_pointer_cast<ASTExpressions>($2), false)); }
         ;
 
 VisibleStatementArgs:
-          NumericalExpression 					{ cout << "Print " << *$1 << endl; }
-        | STRING 								{ cout << "Print " << *$1 << endl; }
-        | VisibleStatementArgs NumericalExpression 	{ cout << "Print " << *$2 << endl; }
-        | VisibleStatementArgs STRING 				{ cout << "Print " << *$2 << endl; }
+          NumericalExpression 					     { $$ = ASTNodeSP(new ASTExpressions($1)); }
+        | STRING 								     { $$ = ASTNodeSP(new ASTExpressions($1)); }
+        | VisibleStatementArgs NumericalExpression 	 { (dynamic_cast<ASTExpressions&>(*$1)).expressions.push_back($2); }
+        | VisibleStatementArgs STRING 				 { (dynamic_cast<ASTExpressions&>(*$1)).expressions.push_back($2); }
         ;
 %%
 
 int main(int argc, char **argv) {
 	yyparse();
-	/*if (Program) {
+	if (prog) {
 		TranslatorSP cpp = CreateCPPTranslator();
-		cpp->translate("tmp/a.cpp", Program);
-	}*/
+		cpp->translate("tmp/a.cpp", prog);
+	}
 	return 0;
 }
